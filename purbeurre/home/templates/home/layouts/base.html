@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>{% block title %}{% endblock %} &#8212; Pur Beurre</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/png" href="{% static 'assets/favicon.png' %}"/>
+    <!-- Google fonts-->
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Scope+One"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans"/>
+    {% block styles %}
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet"/>
+    {% endblock %}
+</head>
+<body>
+<!-- Navigation -->
+{% include 'home/layouts/navbar.html' %}
+
+{% block header %}{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block footer %}
+    {% include 'home/layouts/footer.html' %}
+{% endblock %}
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

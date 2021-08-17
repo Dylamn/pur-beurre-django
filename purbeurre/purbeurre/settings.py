@@ -48,7 +48,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Project apps
-    'website.apps.WebsiteConfig',
+    'home.apps.HomeConfig',
+    'account.apps.AccountConfig',
+    'product.apps.ProductConfig',
+    'substitute.apps.SubstituteConfig',
 ]
 
 MIDDLEWARE = [
@@ -95,6 +98,15 @@ DATABASES = {
     }
 }
 
+# The model to use to represent a User.
+AUTH_USER_MODEL = 'account.User'
+
+# Redirect to home URL after login (Default redirect to /accounts/profile/)
+LOGIN_REDIRECT_URL = '/'
+
+# The login URL.
+LOGIN_URL = "/accounts/login"
+
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -135,3 +147,5 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
