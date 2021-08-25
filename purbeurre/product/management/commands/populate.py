@@ -1,7 +1,8 @@
-from time import perf_counter
+import asyncio
+from time import time
 from math import ceil
 
-import requests
+import httpx
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
@@ -13,67 +14,66 @@ class Command(BaseCommand):
 
     help = 'Populate the database of products and categories.'
 
-    _fields = [
-        # Product fields
-        'product_name', 'generic_name', 'nutriscore_grade', 'brands',
-        'stores', 'url',
-        # Category fields
-        'categories', 'categories_tags',
-    ]
+    @staticmethod
+    def _get_fields() -> tuple:
+        """Fields that will be present in the OpenFoodFacts responses."""
+        return (
+            # Product fields
+            'product_name', 'generic_name', 'nutriscore_grade', 'brands',
+            'stores', 'url',
+            # Category fields
+            'categories', 'categories_tags',
+        )
 
-    def add_arguments(self, parser):
-        pass
-
-    # TODO: Rewrite as async function with an asynchronous HTTP library.
     def handle(self, *args, **options):
-        start = perf_counter()
-        page = 1
+        start = time()
+        first_page = 1
         # First index is for products added and the second is for categories.
         count = (0, 0)
 
+        # TODO: Get ingredients too...
         params = {
-            'json': True, 'action': 'process', 'page_size': 1000, 'page': page,
-            'fields': ','.join(self._fields), 'tagtype_0': 'states',
-            'tag_contains_0': 'contains', 'tag_0': 'fr:checked',
+            'json': True, 'action': 'process', 'page_size': 300,
+            'page': first_page, 'fields': ','.join(self._get_fields()),
+            'tagtype_0': 'states', 'tag_contains_0': 'contains',
+            'tag_0': 'fr:checked',
         }
 
-        response = self._get_products(params)
+        response = asyncio.run(self._fetch_products(params)).pop()
 
-        if not response.ok:
+        if response.status_code != 200:
             self._throw_error()
 
         # Get the content of the JSON body...
         payload = response.json()
 
         # Calculate the number of pages.
-        last_page = ceil(int(payload.get('count')) / params['page_size'])
+        last_page = ceil(int(payload.get('count', 0)) / params['page_size'])
 
-        # We'll use a while loop in order to fetch all products.
-        # We can't pull all products in a single request
-        # because the maximum page size is 1000.
-        while page < last_page:
-            products = payload.get('products', [])
+        # Save the first page of products in the database.
+        added = self._save_products_and_categories(payload.get('products', []))
+        # Update the numbers of products/categories added.
+        count = self._update_count(count, added)
 
-            added = self._save_products_and_categories(products)
-            count = self._update_count(count, added)
+        if first_page != last_page:
+            # Increment the page number for the upcoming requests.
+            params['page'] += 1
 
-            page += 1
-            params['page'] = page
+            # Fetch all remaining pages...
+            reqs = asyncio.run(self._fetch_products(params, last_page=last_page))
 
-            response = self._get_products(params)
+            for req in reqs:
+                products = req.json().get('products', [])
 
-            if not response.ok:
-                self._throw_error()
+                added = self._save_products_and_categories(products)
+                count = self._update_count(count, added)
 
-            payload = response.json()
-
-        elapsed_time = perf_counter() - start
+        elapsed_time = time() - start
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Sucessfully imported {str(count[0])} products "
-                f"and {str(count[1])} categories. "
-                f"(took {elapsed_time:.2f}s)"
+                f"Sucessfully imported {count[0]} products "
+                f"and {count[1]} categories. ({elapsed_time:.2f} seconds)"
             )
         )
 
@@ -84,7 +84,7 @@ class Command(BaseCommand):
 
         # we named the var 'p' in order to avoid conflits with the package name.
         for p in products:
-            if not p.get('nutriscore_grade'):
+            if p.get('nutriscore_grade') is None:
                 continue
 
             categories = p.get('categories').split(',')
@@ -117,10 +117,27 @@ class Command(BaseCommand):
 
         return products_added, categories_added
 
-    def _get_products(self, params):
-        return requests.get(
-            f"{self.OPENFOODFACTS_BASE_URL}/cgi/search.pl", params=params
-        )
+    async def _fetch_products(self, params, last_page=None):
+        first_page = params.get('page', 1)
+        last_page = last_page or first_page
+        tasks = []
+
+        async with httpx.AsyncClient() as client:
+            for page in range(first_page, (last_page + 1)):
+                # Create a new instance for each requests.
+                p = params.copy()
+                p['page'] = page
+
+                tasks.append(
+                    client.get(
+                        f"{self.OPENFOODFACTS_BASE_URL}/cgi/search.pl",
+                        params=p, timeout=10.0
+                    )
+                )
+
+            reqs = await asyncio.gather(*tasks)
+
+        return reqs
 
     def _throw_error(self):
         raise CommandError(
@@ -130,5 +147,4 @@ class Command(BaseCommand):
 
     @staticmethod
     def _update_count(count, added):
-        return count[0] + added[0], count[1] + added[1]
-
+        return tuple(map(lambda x, y: x + y, count, added))
