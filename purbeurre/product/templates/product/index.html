@@ -1,0 +1,49 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ input_query }}{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'product/css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container offset-header">
+        <div class="row mb-5">
+            <div class="text-center">
+                <h2>« {{ input_query }} »</h2>
+            </div>
+            <hr>
+        </div>
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4 text-center mb-5 border-2 border-dark position-relative">
+                    <!-- Nutriscore badge -->
+                    <div class="position-absolute end-0 px-2 rounded-pill ns-{{ product.nutriscore_grade }}
+                                text-white">
+                        <span>{{ product.nutriscore_grade|upper }}</span>
+                    </div>
+                    <a href="{% url 'product:show' pk=product.objectID %}" class="position-relative">
+                        <img class="img-fluid mb-2" src="{{ product.image_small_url }}" alt="{{ product.name }}"/>
+                        <h5 class="mt-auto">{{ product.name }}</h5>
+                    </a>
+                    <span class="product-save cursor-pointer" id="id_{{ product.objectID }}">
+                        <i class="bi bi-save-fill"></i>&ensp;Enregistrer
+                    </span>
+                </div>
+
+            {% empty %}
+
+                <div class="text-center">
+                    <h5>Aucun résultat pour « {{ input_query }} »</h5>
+                </div>
+
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+{% endblock %}

@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'algoliasearch_django',
+
     # Project apps
     'home.apps.HomeConfig',
     'account.apps.AccountConfig',
@@ -149,3 +151,10 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Algolia settings
+# https://www.algolia.com/doc/framework-integration/django/setup/?client=python#setup
+ALGOLIA = {
+    'APPLICATION_ID': env('ALGOLIA_APP_ID'),
+    'API_KEY': env('ALGOLIA_API_KEY'),
+}

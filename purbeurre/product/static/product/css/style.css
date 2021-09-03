@@ -1,0 +1,50 @@
+.nutriscore-label {
+    display: flex;
+    font-size: 1.2rem;
+    align-items: flex-start;
+}
+
+.ns-letter {
+    align-self: baseline;
+    padding: .3rem;
+    font-weight: bold;
+    color: #ffffff69;
+    flex: 0;
+}
+
+.ns-letter:nth-child(1) {
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+}
+
+.ns-letter:nth-last-child(1) {
+    border-top-right-radius: 7px;
+    border-bottom-right-radius: 7px;
+}
+
+.ns-selected {
+    border: 2px #fff solid;
+    border-radius: 10px !important;
+    transform: scale(1.25, 1.20);
+    color: #fff;
+}
+
+.ns-a {
+    background-color: #037D3F;
+}
+
+.ns-b {
+    background-color: #81B52E;
+}
+
+.ns-c {
+    background-color: #F6C502;
+}
+
+.ns-d {
+    background-color: #E77D00;
+}
+
+.ns-e {
+    background-color: #DF3C10;
+}

@@ -3,6 +3,7 @@ from time import time
 from math import ceil
 
 import httpx
+from algoliasearch_django.decorators import disable_auto_indexing
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
@@ -20,7 +21,7 @@ class Command(BaseCommand):
         return (
             # Product fields
             'product_name', 'generic_name', 'nutriscore_grade', 'brands',
-            'stores', 'url',
+            'stores', 'url', 'image_url', 'image_small_url',
             # Category fields
             'categories', 'categories_tags',
         )
@@ -78,6 +79,7 @@ class Command(BaseCommand):
         )
 
     @staticmethod
+    @disable_auto_indexing()
     def _save_products_and_categories(products):
         categories_added = 0
         products_added = 0
@@ -99,6 +101,8 @@ class Command(BaseCommand):
                     "stores": p.get('stores'),
                     "nutriscore_grade": p.get('nutriscore_grade'),
                     "url": p.get('url').strip(),
+                    "image_url": p.get('image_url'),
+                    "image_small_url": p.get('image_small_url'),
                 }
             )
 

@@ -1,0 +1,43 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'product/css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container offset-header">
+        <div class="row mb-5">
+            <div class="text-center">
+                <h2>« {{ product.name }} »</h2>
+            </div>
+            <hr>
+        </div>
+        <section class="row">
+            <div class="col-md-4">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            </div>
+            <div class="col-md-8">
+                <div class="nutriscore-label">
+                    {% for letter in nutriscore_letters %}
+                        <div class="ns-letter ns-{{ letter }} {% if letter == product.nutriscore_grade %}ns-selected{% endif %}">
+                            {{ letter|upper }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="">
+                    <p>Repères nutritionnels / 100g</p>
+                    <span></span>
+                    <p>{% lorem 1 p %}</p>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+{% endblock %}

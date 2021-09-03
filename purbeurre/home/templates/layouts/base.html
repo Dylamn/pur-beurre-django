@@ -4,7 +4,7 @@
     {% load static %}
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <title>{% block title %}{% endblock %} &#8212; Pur Beurre</title>
+    <title>Pur Beurre &#8212; {% block title %}{% endblock %}</title>
     <!-- Favicon-->
     <link rel="icon" type="image/png" href="{% static 'assets/favicon.png' %}"/>
     <!-- Google fonts-->
@@ -13,18 +13,22 @@
     {% block styles %}
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'css/styles.css' %}" rel="stylesheet"/>
+        <!-- Bootstrap Icons-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"/>
     {% endblock %}
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-<!-- Navigation -->
-{% include 'home/layouts/navbar.html' %}
-
-{% block header %}{% endblock %}
+{% block header %}
+    <!-- Navigation -->
+    {% include 'layouts/navbar.html' %}
+{% endblock %}
 
 {% block content %}{% endblock %}
 
 {% block footer %}
-    {% include 'home/layouts/footer.html' %}
+    {% include 'layouts/footer.html' %}
 {% endblock %}
 
 {% block scripts %}{% endblock %}

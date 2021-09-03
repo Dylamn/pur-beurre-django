@@ -1,0 +1,48 @@
+<nav id="mainNav" class="navbar navbar-expand-lg navbar-light py-3
+{% if request.resolver_match.view_name != "home:index" %}navbar-shrink{% else %}fixed-top{% endif %}">
+    <div class="container px-4 px-lg-5">
+        <a class="navbar-brand" href="{% url 'home:index' %}">
+            {% load static %}
+            <img height="40px" width="40px" src="{% static 'assets/img/logo.png' %}" alt="logo"/>
+            <span class="mx-1">Pur Beurre</span>
+        </a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+                aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto my-2 my-lg-0 d-flex justify-content-center align-items-center">
+                <li class="nav-item">
+                    <form method="get" action="{% url 'product:search' %}">
+                        <input type="search" id="query" name="query" class="input-header"
+                               placeholder="Rechercher un produit">
+                    </form>
+                </li>
+                <li class="nav-item">
+                    <abbr title="Mon compte">
+                        <a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person"></i></a>
+                    </abbr>
+                </li>
+                <li class="nav-item">
+                    <abbr title="Mes aliments">
+                        <a class="nav-link" href="#">
+                            <img height="30px" width="30px" src="{% static 'assets/img/carrot.png' %}"
+                                 alt="mes aliments"/>
+                        </a>
+                    </abbr>
+                </li>
+                <li class="nav-item">
+                    {% if user.is_authenticated %}
+                        <abbr title="Déconnexion">
+                            <a class="nav-link" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i></a>
+                        </abbr>
+                    {% else %}
+                        <abbr title="Connexion">
+                            <a class="nav-link" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i></a>
+                        </abbr>
+                    {% endif %}
+
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
