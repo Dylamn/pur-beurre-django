@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}{{ input_query }}{% endblock %}
+{% block title %}{{ meta.input_query|capfirst }}{% endblock %}
 
 {% block styles %}
     {{ block.super }}
@@ -12,38 +12,96 @@
     <div class="container offset-header">
         <div class="row mb-5">
             <div class="text-center">
-                <h2>« {{ input_query }} »</h2>
+                <h2>« {{ meta.input_query|capfirst }} »</h2>
             </div>
             <hr>
         </div>
         <div class="row">
             {% for product in products %}
-                <div class="col-md-4 text-center mb-5 border-2 border-dark position-relative">
-                    <!-- Nutriscore badge -->
-                    <div class="position-absolute end-0 px-2 rounded-pill ns-{{ product.nutriscore_grade }}
-                                text-white">
-                        <span>{{ product.nutriscore_grade|upper }}</span>
+                <div class="col-md-4 text-center mb-5">
+                    <div class="d-flex flex-column h-100 justify-content-end">
+                        <div class="product-header">
+                            <a href="{% url 'product:show' pk=product.objectID %}"
+                               class="position-relative text-decoration-none">
+                                <!-- Nutriscore badge -->
+                                <div class="position-absolute px-2 rounded-circle ns-{{ product.nutriscore_grade }} text-white"
+                                     style="right: -15px">
+                                    <span>{{ product.nutriscore_grade|upper }}</span>
+                                </div>
+                                <img class="img-fluid mb-2" src="{{ product.image_small_url }}"
+                                     alt="{{ product.name }}"/>
+                                <h5 class="mt-auto">{{ product.name }}</h5>
+                            </a>
+                        </div>
+                        <div class="product-info">
+                            <a href="{% url 'substitute:search' %}?pid={{ product.objectID }}"
+                               class="text-decoration-none">
+                                <i class="bi bi-search"></i>
+                                <span class="text-decoration-underline">Rechercher un substitut</span>
+                            </a>
+                        </div>
                     </div>
-                    <a href="{% url 'product:show' pk=product.objectID %}" class="position-relative">
-                        <img class="img-fluid mb-2" src="{{ product.image_small_url }}" alt="{{ product.name }}"/>
-                        <h5 class="mt-auto">{{ product.name }}</h5>
-                    </a>
-                    <span class="product-save cursor-pointer" id="id_{{ product.objectID }}">
-                        <i class="bi bi-save-fill"></i>&ensp;Enregistrer
-                    </span>
                 </div>
 
             {% empty %}
 
                 <div class="text-center">
-                    <h5>Aucun résultat pour « {{ input_query }} »</h5>
+                    <h5>Aucun résultat pour « {{ meta.input_query }} »</h5>
                 </div>
 
             {% endfor %}
         </div>
+
+        {% if meta.last_page %}
+            <div class="d-flex justify-content-center flex-wrap">
+                <ul class="pagination">
+                    {% if meta.previous_page %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{% url 'product:search' %}?query={{ meta.input_query }}&page={{ meta.previous_page }}">
+                                &laquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                    {% endif %}
+
+                    {% for page in meta.page_range %}
+                        {% if meta.page == page %}
+                            <li class="page-item active">
+                                <a class="page-link"
+                                   href="{% url 'product:search' %}?query={{ meta.input_query }}&page={{ page }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="{% url 'product:search' %}?query={{ meta.input_query }}&page={{ page }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if meta.next_page %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{% url 'product:search' %}?query={{ meta.input_query }}&page={{ meta.next_page }}">
+                                &raquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
+    {% load static %}
+    <script src="{% static 'product/js/saveProduct.js' %}" defer></script>
 {% endblock %}

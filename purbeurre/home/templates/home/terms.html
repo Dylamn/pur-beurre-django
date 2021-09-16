@@ -1,1 +1,19 @@
 {% extends 'layouts/base.html' %}
+
+{% block title %}Mentions légales{% endblock %}
+
+{% block content %}
+    <div class="container offset-header">
+        <h1>Pur Beurre &ndash; Mentions légales</h1>
+        <p class="text-muted">
+            Merci d'utiliser Pur Beurre ! Nous sommes heureux que vous soyez là. Veuillez lire attentivement cet
+            accord sur les conditions de service avant d'accéder à Pur Beurre ou de l'utiliser.
+            Comme il s'agit d'un contrat très important entre nous et nos utilisateurs, nous avons essayé de le rendre
+            aussi clair que possible. Pour votre commodité, nous avons présenté ces conditions sous la forme d'un
+            court résumé non contraignant, suivi des conditions légales complètes.
+        </p>
+        <p class="text-muted">
+            {% lorem 7 b %}
+        </p>
+    </div>
+{% endblock %}

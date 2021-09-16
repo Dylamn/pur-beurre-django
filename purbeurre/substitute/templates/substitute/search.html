@@ -1,0 +1,103 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ meta.product.name }}{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'product/css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container offset-header">
+        <div class="row mb-5">
+            <div class="text-center">
+                <h2>« {{ meta.product.name }} »</h2>
+            </div>
+            <hr>
+        </div>
+        <div class="row">
+            {% for substitute in substitutes %}
+                <div class="col-md-4 text-center mb-5">
+                    <a href="{% url 'product:show' pk=substitute.pk %}"
+                       class="position-relative text-decoration-none">
+                        <!-- Nutriscore badge -->
+                        <div class="position-absolute px-2 rounded-circle ns-{{ substitute.nutriscore_grade }} text-white"
+                             style="right: -15px">
+                            <span>{{ substitute.nutriscore_grade|upper }}</span>
+                        </div>
+                        <img class="img-fluid mb-2" src="{{ substitute.image_small_url }}" alt="{{ substitute.name }}"/>
+                        <h5 class="mt-auto">{{ substitute.name }}</h5>
+                    </a>
+                    <form>
+                        <span class="product-save cursor-pointer" id="id_{{ substitute.pk }}">
+                            <i class="bi bi-save-fill"></i>&ensp;
+                            <span class="text-decoration-underline">Enregistrer</span>
+                        </span>
+
+                        <input type="hidden" name="substitute_id" value="{{ substitute.pk }}">
+                        <input type="hidden" name="original_product_id" value="{{ request.GET.pid }}">
+                    </form>
+                </div>
+
+            {% empty %}
+
+                <div class="text-center">
+                    <h5>Aucun substituts trouvé pour « {{ meta.product.name }} »</h5>
+                </div>
+
+            {% endfor %}
+        </div>
+        {% if substitutes.has_other_pages %} <!-- Pagination -->
+            <div class="d-flex justify-content-center">
+                <ul class="pagination">
+                    {% if substitutes.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{% url 'substitute:search' %}?pid={{ meta.product.id }}&page={{ substitutes.previous_page_number }}">
+                                &laquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                    {% endif %}
+
+                    {% for page in substitutes.paginator.page_range %}
+                        {% if substitutes.number == page %} <!-- Current page -->
+                            <li class="page-item active">
+                                <a class="page-link"
+                                   href="{% url 'substitute:search' %}?pid={{ meta.product.id }}&page={{ page }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% else %} <!-- Other pages -->
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="{% url 'substitute:search' %}?pid={{ meta.product.id }}&page={{ page }}">
+                                    {{ page }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if substitutes.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{% url 'substitute:search' %}?pid={{ meta.product.id }}&page={{ substitutes.next_page_number }}">
+                                &raquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% load static %}
+    <script src="{% static 'product/js/saveProduct.js' %}" defer></script>
+{% endblock %}

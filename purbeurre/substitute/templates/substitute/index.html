@@ -1,0 +1,16 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}A{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% for substitute in object_list %}
+            {{ substitute.original_product_id }}
+
+        {% empty %}
+            <p>No substitutes for now!</p>
+
+        {% endfor %}
+
+    </div>
+{% endblock %}

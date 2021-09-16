@@ -12,14 +12,11 @@ class Category(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Relationships
-    products = models.ManyToManyField('Product')
-
     def __str__(self):
         return self.name
 
     def __repr__(self):
-        return "<{} '{}'>".format(self.__class__, self.id)
+        return "<{} '{}:{}'>".format(self.__name__, self.id, self.name)
 
 
 # Create your models here.
@@ -47,6 +44,10 @@ class Product(models.Model):
     def get_absolute_url(self):
         """Returns the url to access a detail record for this Product."""
         return reverse('product:show', args=(self.slug,))
+
+    def brands_list(self):
+        """Returns the brands as a list."""
+        return self.brands.split(',')
 
     def category_names(self):
         """Proxy method for algolia indexing."""

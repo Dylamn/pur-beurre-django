@@ -7,6 +7,7 @@ from .models import Product
 
 def index(request):
     query: str = request.GET.get('query', '')
+    current_page = int(request.GET.get('page', 1))
 
     if not query:  # No query, don't do a search request
         return redirect(reverse('home:index'))
@@ -14,13 +15,25 @@ def index(request):
     # Algolia search parameters
     params = {
         "hitsPerPage": 6,
+        # We substract by one because algolia starts at index 0 for pages.
+        "page": current_page - 1,
     }
 
     response = raw_search(Product, query, params)
 
     ctx = {
         "products": response['hits'],
-        "input_query": query,
+
+        "meta": {
+            "input_query": query,
+            "page": current_page,
+            "previous_page": current_page - 1 or None,
+            "next_page": current_page + 1 if response['nbPages'] >= current_page + 1 else None,
+            "last_page": response['nbPages'],
+            "page_range": (range(1, response['nbPages'] + 1)),
+            "per_page": response['hitsPerPage'],
+            "total": response['nbHits'],
+        }
     }
 
     return render(request, 'product/index.html', context=ctx)
@@ -31,8 +44,8 @@ class ProductDetailView(DetailView):
     template_name = 'product/show.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
         # Add a list containing the nutriscore letters
-        context.setdefault('nutriscore_letters', ['a', 'b', 'c', 'd', 'e'])
+        ctx.setdefault('nutriscore_letters', ['a', 'b', 'c', 'd', 'e'])
 
-        return context
+        return ctx

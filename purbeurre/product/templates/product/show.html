@@ -28,10 +28,18 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div class="">
+                <div class="product-info">
                     <p>Repères nutritionnels / 100g</p>
-                    <span></span>
+                    <h4>Marques</h4>
+                    <ul>
+                        {% for brand in product.brands_list %}
+                            <li>{{ brand }}</li>
+                        {% endfor %}
+                    </ul>
                     <p>{% lorem 1 p %}</p>
+                    <a href="{{ product.url }}" target="_blank">
+                        <button class="btn btn-outline-secondary">Voir la fiche d'OpenFoodFacts</button>
+                    </a>
                 </div>
             </div>
         </section>
