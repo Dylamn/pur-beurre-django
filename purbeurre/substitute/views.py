@@ -33,15 +33,15 @@ class ProductSubstitutesListView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         category_ids = self.original_product.categories.values_list('id', flat=True)
 
-        # TODO: Duplicates appears in the results, probably
-        #  caused by the `categories__in` filter and the order by `categories_id DESC`.
-        substitute_list = Product.objects.filter(
+        return Product.objects.filter(
             categories__in=category_ids,
-            nutriscore_grade__lt=self.original_product.nutriscore_grade
-        ).exclude(
+            nutriscore_grade__lte=self.original_product.nutriscore_grade
+        ).distinct().exclude(
             pk=self.original_product.pk
+        ).annotate(
+            categories_count=Count('categories')
         ).order_by(
-            '-categories__id', "nutriscore_grade"
+            '-categories_count', 'nutriscore_grade',
         )
 
     def get_context_data(self, *, object_list=None, **kwargs):
