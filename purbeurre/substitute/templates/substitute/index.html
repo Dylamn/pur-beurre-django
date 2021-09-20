@@ -1,16 +1,28 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}A{% endblock %}
+{% block title %}Mes Aliments{% endblock %}
 
 {% block content %}
     <div class="container">
-        {% for substitute in object_list %}
-            {{ substitute.original_product_id }}
+        <div class="row">
+            {% for substitute in object_list %}
+                <div class="col-md-4">
+                    <img src="{{ substitute.original_product.image_small_url }}" class="img-fluid"
+                         alt="{{ substitute.original_product.name }}">
+                    <img src="{{ substitute.substitute_product.image_small_url }}" class="img-fluid"
+                         alt="{{ substitute.original_product.name }}">
+                    <p>
+                        <span class="fw-bold">&laquo; {{ substitute.original_product.name }} &raquo;</span>
+                        substitué par
+                        <span class="fw-bold">&laquo; {{ substitute.substitute_product.name }} &raquo;</span>
+                    </p>
+                </div>
 
-        {% empty %}
-            <p>No substitutes for now!</p>
+            {% empty %}
 
-        {% endfor %}
+                <p>No substitutes for now!</p>
 
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

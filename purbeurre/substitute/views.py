@@ -1,7 +1,8 @@
+from django.db.models import Count
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import reverse, render, get_object_or_404
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
 from product.models import Product
@@ -14,58 +15,67 @@ class UserSubstituteIndexView(generic.ListView):
     context_object_name = 'substitutes'
 
 
-@login_required
-def search_substitutes(request):
-    page = request.GET.get('page', 1)
-    product_id = request.GET.get('pid')
-    original_product = get_object_or_404(Product, pk=product_id)
+class ProductSubstitutesListView(LoginRequiredMixin, generic.ListView):
+    model = Product
+    template_name = 'substitute/search.html'
+    context_object_name = 'substitutes'
+    paginate_by = 6
 
-    category_ids = list(
-        original_product.categories.values_list('id', flat=True)
-    )
+    original_product: Product
 
-    # TODO: Duplicates appears in the results, probably
-    #  caused by the `categories__in` filter.
-    substitute_list = Product.objects.filter(
-        categories__in=category_ids,
-        nutriscore_grade__lt=original_product.nutriscore_grade
-    ).exclude(
-        pk=original_product.pk
-    ).order_by(
-        '-categories__id', "nutriscore_grade"
-    )
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        # Get the product in setup to avoid a double query to the db
+        # One in ``get_queryset`` and the second in ``get_context_data``.
+        product_id = self.request.GET.get('pid')
+        self.original_product = get_object_or_404(Product, pk=product_id)
 
-    paginator = Paginator(substitute_list, 6)
+    def get_queryset(self):
+        category_ids = self.original_product.categories.values_list('id', flat=True)
 
-    try:
-        substitutes = paginator.page(page)
-    except PageNotAnInteger:
-        substitutes = paginator.page(1)
-    except EmptyPage:
-        substitutes = paginator.page(paginator.num_pages)
+        # TODO: Duplicates appears in the results, probably
+        #  caused by the `categories__in` filter and the order by `categories_id DESC`.
+        substitute_list = Product.objects.filter(
+            categories__in=category_ids,
+            nutriscore_grade__lt=self.original_product.nutriscore_grade
+        ).exclude(
+            pk=self.original_product.pk
+        ).order_by(
+            '-categories__id', "nutriscore_grade"
+        )
 
-    ctx = {
-        "substitutes": substitutes,
-        "meta": {
-            "product": original_product
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=object_list, **kwargs)
+        adds = {
+            "meta": {
+                "product": self.original_product
+            }
         }
-    }
 
-    return render(request, 'substitute/search.html', context=ctx)
+        return {**ctx, **adds}  # Merge the dicts
 
 
 @login_required
 def save_product(request):
     wants_json = request.headers.get('Accept') == 'application/json'
 
-    UserSubstitute.objects.create({
-        'user_id': request.user.pk,
-        'original_product_id': request.POST.get('original_product_id'),
-        'substitute_product_id': request.POST.get('substitute_product_id'),
-    })
+    exists = UserSubstitute.objects.filter(
+        user_id=request.user.pk,
+        original_product_id=request.POST.get('original_product_id'),
+        substitute_product_id=request.POST.get('substitute_product_id'),
+    ).exists()
+
+    if exists:
+        return HttpResponseRedirect(reverse('substitute:index'))
+
+    user_substitute = UserSubstitute.objects.create(
+        user_id=request.user.pk,
+        original_product_id=request.POST.get('original_product_id'),
+        substitute_product_id=request.POST.get('substitute_product_id'),
+    )
 
     if not wants_json:
-        return HttpResponseRedirect(reverse('substitute:index'))
+        return HttpResponseRedirect(reverse('substitute:index', kwargs={'user_substitute': user_substitute}))
 
     body = {
         "status": "created",
