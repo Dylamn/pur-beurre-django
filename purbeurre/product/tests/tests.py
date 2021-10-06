@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from product.models import Product, Category
-from factories import CategoryFactory
+from .factories import CategoryFactory
 
 
 def algolia_mock_responses(model, query: str = "", params=None):
@@ -15,7 +15,10 @@ def algolia_mock_responses(model, query: str = "", params=None):
         params = {}
 
     if query.lower() == 'riz':
-        test_path = Path().absolute() / 'product/tests/hits.json'
+        test_path = Path().absolute()
+
+        if model is Product:
+            test_path = test_path / 'product/tests/hits.json'
 
         with open(test_path, 'r') as f:
             return json.load(f)

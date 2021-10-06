@@ -9,10 +9,16 @@ from product.models import Product
 from .models import UserSubstitute
 
 
-class UserSubstituteIndexView(generic.ListView):
+class UserSubstituteIndexView(LoginRequiredMixin, generic.ListView):
     model = UserSubstitute
     template_name = 'substitute/index.html'
     context_object_name = 'substitutes'
+    paginate_by = 1
+
+    def get_queryset(self):
+        user = self.request.user
+
+        return UserSubstitute.objects.filter(user_id=user.pk)
 
 
 class ProductSubstitutesListView(LoginRequiredMixin, generic.ListView):
@@ -56,7 +62,7 @@ class ProductSubstitutesListView(LoginRequiredMixin, generic.ListView):
 
 
 @login_required
-def save_product(request):
+def save_substitute(request):
     wants_json = request.headers.get('Accept') == 'application/json'
 
     exists = UserSubstitute.objects.filter(
@@ -83,3 +89,8 @@ def save_product(request):
     }
 
     return JsonResponse(body, status=201)
+
+
+@login_required
+def delete_substitute(request, substitute_id):
+    UserSubstitute.objects.get(pk=substitute_id)

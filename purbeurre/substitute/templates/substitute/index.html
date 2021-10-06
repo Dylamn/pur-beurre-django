@@ -3,26 +3,97 @@
 {% block title %}Mes Aliments{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="row">
-            {% for substitute in object_list %}
-                <div class="col-md-4">
-                    <img src="{{ substitute.original_product.image_small_url }}" class="img-fluid"
-                         alt="{{ substitute.original_product.name }}">
-                    <img src="{{ substitute.substitute_product.image_small_url }}" class="img-fluid"
-                         alt="{{ substitute.original_product.name }}">
-                    <p>
-                        <span class="fw-bold">&laquo; {{ substitute.original_product.name }} &raquo;</span>
-                        substitué par
-                        <span class="fw-bold">&laquo; {{ substitute.substitute_product.name }} &raquo;</span>
-                    </p>
-                </div>
+    <div class="container offset-header">
+        {% if object_list %}
+            <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Produit d'origine</th>
+                <th scope="col">Nom du produit d'origine</th>
+                <th scope="col">Substitut</th>
+                <th scope="col">Nom du substitut</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+        {% endif %}
+        {% for substitute in object_list %}
+            <tr>
+                <td>
+                    <img class="rounded img-fluid"
+                         src="{{ substitute.original_product.image_small_url }}"
+                         alt="{{ substitute.original_product.name }}"/>
+                </td>
+                <td>{{ substitute.original_product.name }}</td>
+                <td>
+                    <img class="rounded img-fluid"
+                         src="{{ substitute.substitute_product.image_small_url }}"
+                         alt="{{ substitute.substitute_product.name }}"/>
+                </td>
+                <td>{{ substitute.substitute_product.name }}</td>
+                <td>
+                    <a href="{% url 'substitute:delete' substitute_id=substitute.id %}"
+                       style="vertical-align: middle">
+                        <button class="btn btn-danger">
+                            Supprimer
+                        </button>
+                    </a>
+                </td>
+            </tr>
+        {% empty %}
 
-            {% empty %}
+            <h4 class="text-center">
+                Vous n'avez pas encore enregistré de substituts.
+            </h4>
 
-                <p>No substitutes for now!</p>
+        {% endfor %}
+        </tbody>
+        </table>
 
-            {% endfor %}
-        </div>
+        {% if is_paginated %} <!-- Pagination -->
+            <div class="d-flex justify-content-center">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{% url 'substitute:index' %}?page={{ page_obj.previous_page_number }}">
+                                &laquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                    {% endif %}
+
+                    {% for n_page in paginator.page_range %}
+                        {% if page_obj.number == n_page %} <!-- Current page -->
+                            <li class="page-item active">
+                                <a class="page-link"
+                                   href="{% url 'substitute:index' %}?page={{ n_page }}">
+                                    {{ n_page }}
+                                </a>
+                            </li>
+                        {% else %} <!-- Other pages -->
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="{% url 'substitute:index' %}?page={{ n_page }}">
+                                    {{ n_page }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{% url 'substitute:index' %}?page={{ page_obj.next_page_number }}">
+                                &raquo;
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

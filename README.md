@@ -16,6 +16,11 @@ listed in the ``requirements.txt`` file with pip:
 $ pip install -r requirements.txt
 ````
 
+Finally, you need to create the database which you specify in the ``.env`` file and migrate the tables:
+````shell
+$ python manage.py migrate
+````
+
 ### Virtual Environments
 Sometimes you want to keep libraries from polluting system installs 
 or use a different version of libraries than the ones installed on the system.  
@@ -48,3 +53,10 @@ So, lets create our virtual environment:
 You now have finished setting up your virtual environment.
 
 > To exit the virtual environment, simply type the command ``deactivate`` in your terminal
+
+## Run on localhost
+After the installation step, you can run the application through the `manage.py` file in a terminal:
+````shell
+$ python manage.py runserver
+````
+> The ``runserver`` command is only for development purpose
