@@ -13,7 +13,7 @@ class UserSubstituteIndexView(LoginRequiredMixin, generic.ListView):
     model = UserSubstitute
     template_name = 'substitute/index.html'
     context_object_name = 'substitutes'
-    paginate_by = 1
+    paginate_by = 6
 
     def get_queryset(self):
         user = self.request.user

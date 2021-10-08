@@ -11,11 +11,11 @@
                     {% csrf_token %}
                     {{ form.as_p }}
 
-                    <button type="submit" class="btn btn-success">Créer mon compte</button>
+                    <button id="sign_up" type="submit" class="btn btn-success">Créer mon compte</button>
                 </form>
-                </div>
             </div>
         </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}

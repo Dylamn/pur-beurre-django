@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from product.models import Product, Category
-from .factories import CategoryFactory
+from .factories import CategoryFactory, ProductFactory
 
 
 def algolia_mock_responses(model, query: str = "", params=None):
@@ -51,10 +51,10 @@ class ProductModelTests(TestCase):
 class ProductListViewTests(TestCase):
     def setUp(self) -> None:
         self.search_url = reverse('product:search')
+        self.template_name = 'product/index.html'
 
     def test_search_request_with_results(self, _mock: mock.MagicMock):
-        query = "Riz"
-        search = self.search_url + f"?query={query}"
+        search = self.search_url + '?query=Riz'
         _mock.assert_not_called()
         response = self.client.get(search)
         _mock.assert_called()
@@ -82,3 +82,29 @@ class ProductListViewTests(TestCase):
         search = self.search_url + f"?query={query}"
 
         return self.client.get(search)
+
+
+class ProductDetailViewTests(TestCase):
+    @staticmethod
+    def generate_detail_url(_id):
+        """Generate the URL for accessing to the details of a given product."""
+        return reverse('product:show', args=(_id,))
+
+    def test_detail_view_with_an_existing_product(self):
+        """Test that the detail view works correctly."""
+        product = ProductFactory()
+        url = self.generate_detail_url(product.id)
+
+        response = self.client.get(url)
+
+        self.assertEqual(200, response.status_code)
+        self.assertTemplateUsed(response, template_name='product/show.html')
+
+    def test_detail_view_product_not_found(self):
+        """Test that the product detail view returns a 404 not found page."""
+        url = self.generate_detail_url(0)
+
+        response = self.client.get(url)
+
+        self.assertEqual(404, response.status_code)
+        self.assertTemplateUsed(response, template_name='product/404.html')
