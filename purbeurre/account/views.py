@@ -9,10 +9,10 @@ def register(request):
     status = 200
 
     if request.user.is_authenticated:
-        return redirect(reverse('home:index'), permanent=True)
+        return redirect(reverse('home:index'))
 
     if request.method == "POST":
-        # `is_active` initially True because there's actually no email verification.
+        # `is_active` default at True because there's no email verification currently.
         form = RegisterUserForm(request.POST, initial={"is_active": True})
 
         if form.is_valid():
@@ -20,7 +20,7 @@ def register(request):
 
             login(request, user)  # Log in the new user.
 
-            return redirect(reverse('home:index'), permanent=True)
+            return redirect(reverse('home:index'))
         else:
             # Validation error append
             status = 400

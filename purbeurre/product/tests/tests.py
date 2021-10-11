@@ -30,8 +30,8 @@ def algolia_mock_responses(model, query: str = "", params=None):
         'nbPages': 0,
         'hitsPerPage': 6,
         'exhaustiveNbHits': True,
-        'query': 'NoResultsExpected',
-        'params': 'query=NoResultsExpected&hitsPerPage=6',
+        'query': query,
+        'params': f'query={query}&hitsPerPage=6',
         'renderingContent': {},
         'processingTimeMS': 2
     }
@@ -39,9 +39,28 @@ def algolia_mock_responses(model, query: str = "", params=None):
 
 class ProductModelTests(TestCase):
     def test_absolute_url_method(self):
-        p = Product(name="Product n°1")
+        """Test that the ``get_absolute_url`` use the right template."""
+        p = ProductFactory(name="Product n°1")
+        url = p.get_absolute_url()
 
-        self.assertTrue(p)
+        response = self.client.get(url)
+
+        self.assertEqual(200, response.status_code)
+        self.assertTemplateUsed(response, template_name='product/show.html')
+
+    def test_brands_list_method(self):
+        """Test the ``brands_list`` method."""
+        brands = "Brand1,Brand2,Brand3"
+        p = ProductFactory(brands=brands)
+
+        self.assertEqual(brands.split(','), p.brands_list())
+
+    def test_stores_list_method(self):
+        """Test the ``stores_list`` method."""
+        stores = "Store1,Store2,Store3,Store4"
+        p = ProductFactory(stores=stores)
+
+        self.assertEqual(stores.split(','), p.stores_list())
 
 
 # We don't patch `algoliasearch_django.raw_search` because we use a from/import
@@ -107,4 +126,5 @@ class ProductDetailViewTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(404, response.status_code)
+        self.assertTemplateNotUsed(response, template_name='product/show.html')
         self.assertTemplateUsed(response, template_name='product/404.html')
