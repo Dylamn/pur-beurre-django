@@ -12,12 +12,21 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = fake.unique.name()
-    email = fake.unique.ascii_safe_email()
+    username = factory.Sequence(lambda n: fake.name() + str(n))
     first_name = fake.first_name()
     last_name = fake.last_name()
+
+    @factory.sequence
+    def email(iteration):
+        return "{0}.{1}{2}@example.com".format(
+            factory.SelfAttribute('first_name'),
+            factory.SelfAttribute('last_name'),
+            iteration
+        )
+
     password = factory.PostGenerationMethodCall('set_password', '-'.join(fake.words(3)))
 
+    is_active = True
     is_staff = False
     is_superuser = False
 

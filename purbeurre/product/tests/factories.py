@@ -13,7 +13,8 @@ class CategoryFactory(factory.django.DjangoModelFactory):
         model = Category
 
     name = factory.Sequence(lambda n: f"Category n°{n}")
-    tag = "{0}:{1}".format(fake.language_code(), slugify(factory.SelfAttribute('name')))
+
+    tag = factory.LazyAttribute(lambda obj: "{0}:{1}".format(fake.language_code(), obj.name))
     created_at = factory.LazyFunction(timezone.now)
     updated_at = factory.LazyFunction(timezone.now)
 
@@ -24,7 +25,7 @@ class ProductFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: "Product%d" % n)
     slug = factory.LazyAttribute(lambda obj: slugify(obj.name))
-    generic_name = f"Generic {factory.SelfAttribute('name')}"
+    generic_name = factory.LazyAttribute(lambda obj: f"Generic {obj.name}")
 
     nutriscore_grade = fake.random_element(elements=('a', 'b', 'c', 'd', 'e'))
 

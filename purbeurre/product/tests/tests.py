@@ -40,7 +40,7 @@ def algolia_mock_responses(model, query: str = "", params=None):
 class ProductModelTests(TestCase):
     def test_absolute_url_method(self):
         """Test that the ``get_absolute_url`` use the right template."""
-        p = ProductFactory(name="Product n°1")
+        p = ProductFactory(categories=(CategoryFactory(),))
         url = p.get_absolute_url()
 
         response = self.client.get(url)
@@ -62,6 +62,13 @@ class ProductModelTests(TestCase):
 
         self.assertEqual(stores.split(','), p.stores_list())
 
+    def test_str_dunder_method(self):
+        """Test that the `__str__` method uses the name of the product."""
+        p_name = "Product.toString"
+        p = ProductFactory(name=p_name)
+
+        self.assertEqual(p_name, str(p))
+
 
 # We don't patch `algoliasearch_django.raw_search` because we use a from/import
 # statement for the import so the raw_search is in the `product.views` namespace.
@@ -71,6 +78,16 @@ class ProductListViewTests(TestCase):
     def setUp(self) -> None:
         self.search_url = reverse('product:search')
         self.template_name = 'product/index.html'
+
+    def test_search_request_redirect_when_no_query_provided(self, _mock: mock.MagicMock):
+        _mock.assert_not_called()
+        response = self.client.get(self.search_url)
+
+        # mock still not called because we redirect
+        # before the call to Algolia when no query is provided.
+        _mock.assert_not_called()
+
+        self.assertRedirects(response, expected_url='/')
 
     def test_search_request_with_results(self, _mock: mock.MagicMock):
         search = self.search_url + '?query=Riz'
@@ -92,13 +109,14 @@ class ProductListViewTests(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, len(response.context['products']))
+        self.assertQuerysetEqual(response.context['products'], [])
 
     def search_query(self, query):
         """Call the product index view.
 
         The index view search products with a given query.
         """
-        search = self.search_url + f"?query={query}"
+        search = f"{self.search_url}?query={query}"
 
         return self.client.get(search)
 

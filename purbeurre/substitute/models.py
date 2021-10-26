@@ -42,7 +42,7 @@ class UserSubstitute(models.Model):
         return f"{self.original_product.name} substitué par {self.substitute_product.name}"
 
     def __repr__(self):
-        return "<{} '{}, {}'".format(
+        return "<{} '{}, {}'>".format(
             self.__name__,
             self.original_product_id,
             self.substitute_product_id

@@ -109,7 +109,7 @@ class LoginViewTests(TestCase):
         response = self.client.post(self.login_url, data=credentials)
 
         self.assertEqual(200, response.status_code)
-        self.assertIn("Adresse email ou mot de passe incorrect.", str(response.content))
+        self.assertContains(response, "Adresse email ou mot de passe incorrect.")
 
 
 class SeleniumTests(LiveServerTestCase):
@@ -162,7 +162,7 @@ class SeleniumTests(LiveServerTestCase):
         """Test the login page form with selenium"""
         password = "selenium_login_test"
         user = UserFactory(password=password)
-        url = self.live_server_url + reverse('login')
+        url = str(self.live_server_url + reverse('login'))
 
         self.browser.get(url)
 

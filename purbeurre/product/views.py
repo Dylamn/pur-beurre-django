@@ -3,6 +3,7 @@ from django.views.generic import DetailView
 from algoliasearch_django import raw_search
 
 from .models import Product
+from product.tests.tests import algolia_mock_responses
 
 
 def index(request):
@@ -19,6 +20,7 @@ def index(request):
         "page": current_page - 1,
     }
 
+    # response = algolia_mock_responses(Product, query)
     response = raw_search(Product, query, params)
 
     ctx = {
