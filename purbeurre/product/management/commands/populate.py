@@ -96,7 +96,10 @@ class Command(BaseCommand):
                 slug=slugify(p.get('product_name')),
                 defaults={
                     "name": p.get('product_name'),
-                    "generic_name": p.get('generic_name'),
+                    # We check the length of `generic_name` as on the first release
+                    # no one exceeded 254 characters but one product has been updated
+                    # with a generic name length greater than the maximum field length.
+                    "generic_name": p.get('generic_name') if len(p.get('generic_name', '')) <= 254 else None,
                     "brands": p.get('brands'),
                     "stores": p.get('stores'),
                     "nutriscore_grade": p.get('nutriscore_grade'),

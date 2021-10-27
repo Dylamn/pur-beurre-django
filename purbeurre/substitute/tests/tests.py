@@ -71,5 +71,3 @@ class SubstituteSearchListViewTests(TestCase):
         self.assertQuerysetEqual(substitutes, similar_products)
         # Verify that any `different_products` are not present in the results.
         map(lambda item: self.assertNotIn(item, substitutes), different_products)
-
-        
