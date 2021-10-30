@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 from unittest import mock
 
+from algoliasearch_django.decorators import disable_auto_indexing
 from django.test import TestCase
-from django.urls import reverse
+from django.shortcuts import reverse
 
 from product.models import Product, Category
 from .factories import CategoryFactory, ProductFactory
@@ -38,6 +39,7 @@ def algolia_mock_responses(model, query: str = "", params=None):
 
 
 class ProductModelTests(TestCase):
+    @disable_auto_indexing()
     def test_absolute_url_method(self):
         """Test that the ``get_absolute_url`` use the right template."""
         p = ProductFactory(categories=(CategoryFactory(),))
@@ -51,21 +53,21 @@ class ProductModelTests(TestCase):
     def test_brands_list_method(self):
         """Test the ``brands_list`` method."""
         brands = "Brand1,Brand2,Brand3"
-        p = ProductFactory(brands=brands)
+        p = ProductFactory.build(brands=brands)
 
         self.assertEqual(brands.split(','), p.brands_list())
 
     def test_stores_list_method(self):
         """Test the ``stores_list`` method."""
         stores = "Store1,Store2,Store3,Store4"
-        p = ProductFactory(stores=stores)
+        p = ProductFactory.build(stores=stores)
 
         self.assertEqual(stores.split(','), p.stores_list())
 
     def test_str_dunder_method(self):
         """Test that the `__str__` method uses the name of the product."""
         p_name = "Product.toString"
-        p = ProductFactory(name=p_name)
+        p = ProductFactory.build(name=p_name)
 
         self.assertEqual(p_name, str(p))
 
@@ -127,6 +129,7 @@ class ProductDetailViewTests(TestCase):
         """Generate the URL for accessing to the details of a given product."""
         return reverse('product:show', args=(_id,))
 
+    @disable_auto_indexing()
     def test_detail_view_with_an_existing_product(self):
         """Test that the detail view works correctly."""
         product = ProductFactory()

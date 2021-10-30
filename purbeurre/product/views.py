@@ -16,11 +16,10 @@ def index(request):
     # Algolia search parameters
     params = {
         "hitsPerPage": 6,
-        # We substract by one because algolia starts at index 0 for pages.
+        # We subtract by one because algolia starts at index 0 for pages.
         "page": current_page - 1,
     }
 
-    # response = algolia_mock_responses(Product, query)
     response = raw_search(Product, query, params)
 
     ctx = {

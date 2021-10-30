@@ -1,12 +1,13 @@
-from django.test import TestCase
+from algoliasearch_django.decorators import disable_auto_indexing
+from django.test import TestCase, TransactionTestCase
 from django.shortcuts import reverse
 
 from account.tests.factories import UserFactory
 from product.tests.factories import ProductFactory, CategoryFactory
 from .factories import UserSubstituteFactory
+from ..models import UserSubstitute
 
 
-# Create your tests here.
 class UserSubstituteListViewTests(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
@@ -25,6 +26,7 @@ class UserSubstituteListViewTests(TestCase):
         self.assertTemplateUsed(response, template_name='substitute/index.html')
         self.assertQuerysetEqual(response.context['substitutes'], [])
 
+    @disable_auto_indexing()
     def test_user_substitute_list_with_results(self) -> None:
         """Test the view context and pagination."""
         user_substitutes = UserSubstituteFactory.create_batch(size=10, user=self.user)
@@ -37,7 +39,10 @@ class UserSubstituteListViewTests(TestCase):
         self.assertQuerysetEqual(ctx_substitutes, user_substitutes[:6])
 
 
-class SubstituteSearchListViewTests(TestCase):
+class SubstituteSearchListViewTests(TransactionTestCase):
+    reset_sequences = True
+
+    @disable_auto_indexing()
     def setUp(self) -> None:
         self.user = UserFactory()
         self.client.force_login(self.user)
@@ -45,21 +50,38 @@ class SubstituteSearchListViewTests(TestCase):
         self.original_product = ProductFactory(categories=self.original_product_categories)
         self.url = reverse('substitute:search') + f"?pid={self.original_product.pk}"
 
-    def test_substitute_search_template(self):
+    def test_substitute_search_template(self) -> None:
         """Test that the template used is the expected ones."""
         response = self.client.get(self.url)
 
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, template_name='substitute/search.html')
 
-    def test_substitute_search_list(self):
+    @disable_auto_indexing()
+    def test_empty_substitute_search_list(self) -> None:
+        """Test that products that has no shared categories doesn't appear.
+
+        Also test that empty substitute list result is also handled.
+        """
+        ProductFactory.create_batch(
+            size=10, categories=CategoryFactory.create_batch(3),
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(200, response.status_code)
+        self.assertQuerysetEqual([], response.context['substitutes'])
+        self.assertContains(response, f"<h5>Aucun substituts trouvé pour « {self.original_product.name} »</h5>")
+
+    @disable_auto_indexing()
+    def test_substitute_search_list(self) -> None:
         """Test the substitute list search."""
         n_substitutes = 3
         similar_products = ProductFactory.create_batch(
             categories=self.original_product_categories, size=n_substitutes
         )
         different_products = ProductFactory.create_batch(
-            categories=CategoryFactory.create_batch(5), size=4
+            size=4, categories=CategoryFactory.create_batch(5)
         )
 
         response = self.client.get(self.url)
@@ -71,3 +93,98 @@ class SubstituteSearchListViewTests(TestCase):
         self.assertQuerysetEqual(substitutes, similar_products)
         # Verify that any `different_products` are not present in the results.
         map(lambda item: self.assertNotIn(item, substitutes), different_products)
+
+
+class SaveUserSubstituteView(TestCase):
+    def setUp(self) -> None:
+        self.user = UserFactory()
+        self.client.force_login(self.user)
+        self.url = reverse('substitute:save')
+
+    @disable_auto_indexing()
+    def test_save_substitute(self) -> None:
+        original_product, product_substitute = ProductFactory.create_batch(
+            size=2, categories=CategoryFactory.create_batch(3)
+        )
+        data = {
+            "original_product": original_product.id,
+            "substitute_product": product_substitute.id,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertRedirects(response, expected_url=reverse('substitute:index'))
+        self.assertTrue(
+            UserSubstitute.objects.filter(
+                user_id=self.user.pk,
+                original_product_id=original_product.id,
+                substitute_product_id=product_substitute.id
+            ).exists()
+        )
+
+    @disable_auto_indexing()
+    def test_save_substitute_already_exists(self):
+        original_product, substitute = ProductFactory.create_batch(
+            size=2, categories=CategoryFactory.create_batch(2)
+        )
+
+        # Create the substitute through its factory
+        UserSubstituteFactory(
+            user=self.user,
+            original_product=original_product,
+            substitute_product=substitute
+        )
+
+        # Try to create through the view which should fail.
+        response = self.client.post(self.url, data={
+            "original_product": original_product.id,
+            "substitute_product": substitute.id,
+        })
+
+        self.assertRedirects(response, expected_url=reverse('substitute:index'))
+
+    def test_save_user_substitute_with_same_original_and_substitute_product(self):
+        product_ = ProductFactory(categories=CategoryFactory.create_batch(2))
+        data = {
+            "original_product": product_.id,
+            "substitute_product": product_.id,
+        }
+
+        response = self.client.post(self.url, data=data)
+
+        self.assertRedirects(response, expected_url=reverse('substitute:index'))
+        self.assertFalse(
+            UserSubstitute.objects.filter(
+                original_product_id=product_.id,
+                substitute_product_id=product_.id,
+                user_id=self.user.id
+            ).exists()
+        )
+
+
+class DeleteUserSubstituteView(TestCase):
+    @disable_auto_indexing()
+    def setUp(self) -> None:
+        self.user = UserFactory()
+        self.client.force_login(self.user)
+        self.user_substitute = UserSubstituteFactory(user=self.user)
+        self.url = reverse('substitute:delete', args=(self.user_substitute.pk,))
+
+    def test_delete_user_substitute(self) -> None:
+        response = self.client.delete(self.url)
+
+        self.assertRedirects(response, expected_url=reverse('substitute:index'))
+        self.assertFalse(UserSubstitute.objects.filter(id=self.user_substitute.pk).exists())
+
+    def test_delete_user_substitute_of_another_user_is_forbidden(self):
+        another_user = UserFactory()
+        self.client.logout()
+        self.client.force_login(another_user)
+
+        response = self.client.delete(self.url)
+
+        # HTTP status should be forbidden and the user substitute stays alive.
+        self.assertEqual(403, response.status_code)
+        self.assertTrue(
+            UserSubstitute.objects.filter(id=self.user_substitute.pk).exists()
+        )

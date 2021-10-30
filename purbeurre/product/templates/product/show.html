@@ -18,7 +18,7 @@
         </div>
         <section class="row">
             <div class="col-md-4">
-                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                <img src="{{ product.image_url }}" class="img-fluid" alt="{{ product.name }}">
             </div>
             <div class="col-md-8">
                 <div class="nutriscore-label">
@@ -37,9 +37,14 @@
                         {% endfor %}
                     </ul>
                     <p>{% lorem 1 p %}</p>
-                    <a href="{{ product.url }}" target="_blank">
-                        <button class="btn btn-outline-secondary">Voir la fiche d'OpenFoodFacts</button>
-                    </a>
+                    <div class="buttons-inline">
+                        <a href="{{ product.url }}" target="_blank" class="text-decoration-none">
+                            <button class="btn btn-outline-secondary">Voir la fiche d'OpenFoodFacts</button>
+                        </a>
+                        <a href="{% url 'substitute:search' %}?pid={{ product.objectID }}" class="text-decoration-none">
+                            <button class="btn btn-primary">Rechercher un substitut</button>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>

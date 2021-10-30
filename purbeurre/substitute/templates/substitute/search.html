@@ -29,13 +29,13 @@
                         <img class="img-fluid mb-2" src="{{ substitute.image_small_url }}" alt="{{ substitute.name }}"/>
                         <h5 class="mt-auto">{{ substitute.name }}</h5>
                     </a>
-                    {% if substitute.pk in already_substitued_ids %}
+                    {% if substitute.pk in already_substituted_ids %}
                         <span class="fw-bold">Produit déjà assigné comme substitut.</span>
                     {% else %}
                         <form method="post" action="{% url 'substitute:save' %}">
                             {% csrf_token %}
-                            <input type="hidden" name="original_product_id" value="{{ request.GET.pid }}">
-                            <input type="hidden" name="substitute_product_id" value="{{ substitute.pk }}">
+                            <input type="hidden" name="original_product" value="{{ request.GET.pid }}">
+                            <input type="hidden" name="substitute_product" value="{{ substitute.pk }}">
 
                             <button type="submit" class="cursor-pointer bg-white border-0">
                                 <i class="bi bi-save-fill"></i>&ensp;

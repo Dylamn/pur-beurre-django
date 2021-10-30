@@ -9,7 +9,7 @@ class UserSubstitute(models.Model):
 
     Attributes:
         user_id (int): The ID of the user to which this substitute belongs to.
-        original_product_id (int): The original product which is substitued.
+        original_product_id (int): The original product which is substituted.
         substitute_product_id (int): The product which substitute the original.
         created_at (str): The datetime where the substitute has been created.
         updated_at (str): The datetime where the substitute last update occurs.
