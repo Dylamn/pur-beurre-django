@@ -1,4 +1,4 @@
-from django.test import TestCase, LiveServerTestCase
+from django.test import TestCase, LiveServerTestCase, tag
 from django.utils.crypto import get_random_string
 from django.shortcuts import reverse
 from selenium import webdriver
@@ -48,7 +48,12 @@ class RegisterViewTests(TestCase):
         self.assertTrue(register_form.initial['is_active'])
 
     def test_register_form_is_invalid(self):
-        pass
+        user_data = create_user_data(0)
+        user_data['email'] = "abc.d.xyz"
+        register_form = RegisterUserForm(user_data)
+
+        self.assertFalse(register_form.is_valid())
+        self.assertEqual(1, len(register_form.errors))
 
     def test_register_view_success(self) -> None:
         """Test that the POST method is correctly handled and works."""
@@ -59,6 +64,14 @@ class RegisterViewTests(TestCase):
         # User is redirected to the homepage on success.
         self.assertRedirects(response, reverse('home:index'), status_code=302, target_status_code=200)
         self.assertTrue(User.objects.filter(email=user_data['email']).exists())
+
+    def test_register_view_redirect_when_authenticated(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.get(self.register_url)
+
+        self.assertRedirects(response, expected_url=reverse('home:index'))
 
     def test_register_view_failure(self) -> None:
         """Test that the user email must be unique at sign up."""
@@ -112,6 +125,7 @@ class LoginViewTests(TestCase):
         self.assertContains(response, "Adresse email ou mot de passe incorrect.")
 
 
+@tag('selenium')
 class SeleniumTests(LiveServerTestCase):
     def setUp(self) -> None:
         """Hook method for setting up the test fixture before exercising it."""
