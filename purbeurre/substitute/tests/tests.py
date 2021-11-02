@@ -124,24 +124,33 @@ class SaveUserSubstituteView(TestCase):
 
     @disable_auto_indexing()
     def test_save_substitute_already_exists(self):
-        original_product, substitute = ProductFactory.create_batch(
+        original_product, substitute_product = ProductFactory.create_batch(
             size=2, categories=CategoryFactory.create_batch(2)
+        )
+
+        count_queryset = UserSubstitute.objects.filter(
+            original_product_id=original_product.id,
+            substitute_product_id=substitute_product.id
         )
 
         # Create the substitute through its factory
         UserSubstituteFactory(
             user=self.user,
             original_product=original_product,
-            substitute_product=substitute
+            substitute_product=substitute_product
         )
+
+        # Clone/copy the queryset with the `all` method.
+        self.assertEqual(1, count_queryset.all().count())
 
         # Try to create through the view which should fail.
         response = self.client.post(self.url, data={
             "original_product": original_product.id,
-            "substitute_product": substitute.id,
+            "substitute_product": substitute_product.id,
         })
 
         self.assertRedirects(response, expected_url=reverse('substitute:index'))
+        self.assertEqual(1, count_queryset.count())
 
     def test_save_user_substitute_with_same_original_and_substitute_product(self):
         product_ = ProductFactory(categories=CategoryFactory.create_batch(2))
