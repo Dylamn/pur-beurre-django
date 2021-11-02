@@ -92,7 +92,8 @@ class SubstituteSearchListViewTests(TransactionTestCase):
 
         self.assertQuerysetEqual(substitutes, similar_products)
         # Verify that any `different_products` are not present in the results.
-        map(lambda item: self.assertNotIn(item, substitutes), different_products)
+        for item in different_products:
+            self.assertNotIn(item, substitutes)
 
 
 class SaveUserSubstituteView(TestCase):

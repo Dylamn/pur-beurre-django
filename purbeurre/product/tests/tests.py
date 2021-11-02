@@ -10,7 +10,7 @@ from product.models import Product, Category
 from .factories import CategoryFactory, ProductFactory
 
 
-def algolia_mock_responses(model, query: str = "", params=None):
+def algolia_mock_responses(model, query: str = "", params=None):  # pragma: no cover
     """Function used for the return value of the mocked raw_search function."""
     if params is None:
         params = {}

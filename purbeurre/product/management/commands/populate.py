@@ -26,6 +26,12 @@ class Command(BaseCommand):
             'categories', 'categories_tags',
         )
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--pagesize', type=int, default=300,
+            help='Number of product per page.',
+        )
+
     def handle(self, *args, **options):
         start = time()
         first_page = 1
@@ -34,7 +40,7 @@ class Command(BaseCommand):
 
         # TODO: Get ingredients too...
         params = {
-            'json': True, 'action': 'process', 'page_size': 300,
+            'json': True, 'action': 'process', 'page_size': options['pagesize'],
             'page': first_page, 'fields': ','.join(self._get_fields()),
             'tagtype_0': 'states', 'tag_contains_0': 'contains',
             'tag_0': 'fr:checked',
