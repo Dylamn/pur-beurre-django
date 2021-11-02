@@ -1,0 +1,24 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}S'enregistrer{% endblock %}
+
+{% block content %}
+    <div class="container offset-header">
+        <div class="row mb-5">
+            <div class="offset-4  col-md-4">
+                <h3>Créer un compte</h3>
+                <form id="register_form" method="post" action="{% url 'register' %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <button id="sign_up" type="submit" class="btn btn-success">Créer mon compte</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'account/js/password_check.js' %}"></script>
+{% endblock %}

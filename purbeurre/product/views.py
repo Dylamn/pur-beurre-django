@@ -3,6 +3,7 @@ from django.views.generic import DetailView
 from algoliasearch_django import raw_search
 
 from .models import Product
+from product.tests.tests import algolia_mock_responses
 
 
 def index(request):
@@ -15,7 +16,7 @@ def index(request):
     # Algolia search parameters
     params = {
         "hitsPerPage": 6,
-        # We substract by one because algolia starts at index 0 for pages.
+        # We subtract by one because algolia starts at index 0 for pages.
         "page": current_page - 1,
     }
 

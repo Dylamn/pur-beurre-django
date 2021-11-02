@@ -46,3 +46,12 @@
 .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
     background-color: var(--bs-primary) !important;
 }
+
+.flash-error {
+    padding: 15px 20px;
+    margin: 0 auto 10px;
+    font-size: 13px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 6px;
+}

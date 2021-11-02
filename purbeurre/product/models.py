@@ -43,11 +43,15 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         """Returns the url to access a detail record for this Product."""
-        return reverse('product:show', args=(self.slug,))
+        return reverse('product:show', args=(self.id,))
 
     def brands_list(self):
         """Returns the brands as a list."""
         return self.brands.split(',')
+
+    def stores_list(self):
+        """Returns the stores as a list."""
+        return self.stores.split(',')
 
     def category_names(self):
         """Proxy method for algolia indexing."""
