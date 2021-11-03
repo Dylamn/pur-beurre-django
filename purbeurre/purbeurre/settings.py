@@ -14,8 +14,9 @@ from os import getenv
 from pathlib import Path
 
 # import environ
-from dotenv import load_dotenv
 import dj_database_url
+from dotenv import load_dotenv
+from purbeurre.utils import strtobool
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,7 +31,7 @@ load_dotenv(dotenv_path=BASE_DIR / 'purbeurre/.env')
 SECRET_KEY = getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = getenv('DEBUG', False)
+DEBUG = strtobool(getenv('DEBUG', False))
 
 ALLOWED_HOSTS = [
     '0.0.0.0', 'localhost', '127.0.0.1', 'purbeurre-django.herokuapp.com'
@@ -94,7 +95,7 @@ WSGI_APPLICATION = 'purbeurre.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        conn_max_age=600, ssl_require=getenv('DB_SSLMODE', True)
+        conn_max_age=600, ssl_require=strtobool(getenv('DB_SSLMODE', True))
     )
 }
 
