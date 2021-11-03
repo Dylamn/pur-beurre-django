@@ -153,6 +153,7 @@ class SaveUserSubstituteView(TestCase):
         self.assertRedirects(response, expected_url=reverse('substitute:index'))
         self.assertEqual(1, count_queryset.count())
 
+    @disable_auto_indexing()
     def test_save_user_substitute_with_same_original_and_substitute_product(self):
         product_ = ProductFactory(categories=CategoryFactory.create_batch(2))
         data = {

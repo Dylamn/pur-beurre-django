@@ -10,32 +10,31 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from os import getenv
 from pathlib import Path
 
-import environ
-
-# Initialize environment variables
-env = environ.Env(
-    # Set casting and default value
-    DEBUG=(bool, False)
-)
-
-# Reading `.env` file
-environ.Env.read_env()
+# import environ
+from dotenv import load_dotenv
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load additional environment variables present in a `.env` file.
+load_dotenv(dotenv_path=BASE_DIR / 'purbeurre/.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = getenv('DEBUG', False)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    '0.0.0.0', 'localhost', '127.0.0.1', 'purbeurre-django.herokuapp.com'
+]
 
 # Application definition
 
@@ -47,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'whitenoise.runserver_nostatic',
     'algoliasearch_django',
 
     # Project apps
@@ -58,6 +58,9 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Simplified static file serving.
+    # https://warehouse.python.org/project/whitenoise/
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -90,14 +93,9 @@ WSGI_APPLICATION = 'purbeurre.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': "django.db.backends.{0}".format(env('DB_ENGINE')),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-    }
+    'default': dj_database_url.config(
+        conn_max_age=600, ssl_require=getenv('DB_SSLMODE', True)
+    )
 }
 
 # The model to use to represent a User.
@@ -145,7 +143,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -157,6 +158,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Algolia settings
 # https://www.algolia.com/doc/framework-integration/django/setup/?client=python#setup
 ALGOLIA = {
-    'APPLICATION_ID': env('ALGOLIA_APP_ID'),
-    'API_KEY': env('ALGOLIA_API_KEY'),
+    'APPLICATION_ID': getenv('ALGOLIA_APP_ID'),
+    'API_KEY': getenv('ALGOLIA_API_KEY'),
 }

@@ -5,7 +5,7 @@ The idea of this application is to provide a handy tool for customers to search,
 
 ## Installation
 Copy the ``.env.example`` file located in the nested `purbeurre` directory and rename it ``.env``.
-You **must** fill the ``SECRET_KEY`` and the variables which are prefixed by `DB_` otherwise the application will 
+You **must** fill the ``SECRET_KEY``, `DATABASE_URL` and variables prefixed by `ALGOLIA_` otherwise the application will 
 not properly work.
 
 > Fill the ``SECRET_KEY`` with a long, random string.
