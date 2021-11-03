@@ -1,2 +1,2 @@
 release: bash release-tasks.sh
-web: gunicorn purbeurre.wsgi
+web: gunicorn purbeurre.wsgi --chdir=purbeurre/
