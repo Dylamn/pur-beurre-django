@@ -99,9 +99,3 @@
         {% endif %}
     </div>
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    {% load static %}
-    <script src="{% static 'product/js/saveProduct.js' %}" defer></script>
-{% endblock %}
