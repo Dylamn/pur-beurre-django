@@ -3,7 +3,6 @@ from django.views.generic import DetailView
 from algoliasearch_django import raw_search
 
 from .models import Product
-from product.tests.tests import algolia_mock_responses
 
 
 def index(request):

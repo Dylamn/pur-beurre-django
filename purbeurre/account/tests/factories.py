@@ -1,7 +1,6 @@
 import factory
 from faker import Faker
 from django.utils import timezone
-from django.contrib.auth.models import Group
 
 from account.models import User
 
@@ -17,7 +16,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     last_name = fake.last_name()
 
     @factory.sequence
-    def email(iteration):
+    def email(iteration):  # First parameter is the `n` iteration and not the instance of the class.
         return "{0}.{1}{2}@example.com".format(
             factory.SelfAttribute('first_name'),
             factory.SelfAttribute('last_name'),

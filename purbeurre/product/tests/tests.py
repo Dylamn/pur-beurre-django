@@ -6,7 +6,7 @@ from algoliasearch_django.decorators import disable_auto_indexing
 from django.test import TestCase
 from django.shortcuts import reverse
 
-from product.models import Product, Category
+from product.models import Product
 from .factories import CategoryFactory, ProductFactory
 
 
