@@ -15,7 +15,7 @@ class UserSubstitute(models.Model):
         updated_at (str): The datetime where the substitute last update occurs.
     """
     __name__ = "UserSubstitute"
-    
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

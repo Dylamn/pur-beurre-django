@@ -18,4 +18,3 @@ def strtobool(val: Any) -> bool:
         return val.lower() in ('y', 'yes', 't', 'true', 'on', '1')
 
     return bool(val)
-
