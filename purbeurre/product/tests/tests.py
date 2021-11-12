@@ -132,8 +132,8 @@ class ProductDetailViewTests(TestCase):
     @disable_auto_indexing()
     def test_detail_view_with_an_existing_product(self):
         """Test that the detail view works correctly."""
-        product = ProductFactory()
-        url = self.generate_detail_url(product.id)
+        p = ProductFactory()
+        url = self.generate_detail_url(p.id)
 
         response = self.client.get(url)
 
@@ -149,3 +149,14 @@ class ProductDetailViewTests(TestCase):
         self.assertEqual(404, response.status_code)
         self.assertTemplateNotUsed(response, template_name='product/show.html')
         self.assertTemplateUsed(response, template_name='product/404.html')
+
+    @disable_auto_indexing()
+    def test_detail_view_search_substitute_button(self):
+        p = ProductFactory()
+        url = self.generate_detail_url(p.id)
+
+        response = self.client.get(url)
+
+        self.assertEqual(200, response.status_code)
+        # Here we test the url of the substitute search, we check that the `pid` parameter is set.
+        self.assertContains(response, reverse('substitute:search') + f"?pid={p.id}")

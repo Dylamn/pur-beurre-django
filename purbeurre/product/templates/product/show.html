@@ -41,7 +41,7 @@
                         <a href="{{ product.url }}" target="_blank" class="text-decoration-none">
                             <button class="btn btn-outline-secondary">Voir la fiche d'OpenFoodFacts</button>
                         </a>
-                        <a href="{% url 'substitute:search' %}?pid={{ product.objectID }}" class="text-decoration-none">
+                        <a href="{% url 'substitute:search' %}?pid={{ product.id }}" class="text-decoration-none">
                             <button class="btn btn-primary">Rechercher un substitut</button>
                         </a>
                     </div>
