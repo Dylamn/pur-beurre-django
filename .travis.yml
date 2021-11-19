@@ -1,0 +1,34 @@
+language: python
+python:
+  - "3.7"
+  - "3.8"
+  - "3.9"
+
+addons:
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-stable
+
+services:
+  - postgresql
+
+before_install:
+  - wget https://chromedriver.storage.googleapis.com/96.0.4664.45/chromedriver_linux64.zip
+  - unzip chromedriver_linux64.zip
+  - sudo mv chromedriver /usr/bin/chromedriver
+  - python --version
+  - pip install -U pip
+  - psql -c 'create database pur_beurre;' -U postgres
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - cd purbeurre
+  - cp purbeurre/.env.example purbeurre/.env
+
+script:
+  - python manage.py collectstatic --noinput
+  - coverage run manage.py test -b
