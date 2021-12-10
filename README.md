@@ -1,3 +1,6 @@
+[![Build Status](https://app.travis-ci.com/Dylamn/pur-beurre-django.svg?branch=main)](https://app.travis-ci.com/Dylamn/pur-beurre-django)
+[![codecov](https://codecov.io/gh/Dylamn/pur-beurre-django/branch/main/graph/badge.svg?token=P0IZJSLVPR)](https://codecov.io/gh/Dylamn/pur-beurre-django)
+
 # Pur Beurre
 The goal of this project is to help customers who wants to change their diet but were unsure where to start. Replace the Nutella with a hazelnut paste, yes, but which one? In which shop to buy it?
 
