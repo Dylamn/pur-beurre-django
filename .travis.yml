@@ -20,6 +20,7 @@ before_install:
   - sudo mv chromedriver /usr/bin/chromedriver
   - python --version
   - pip install -U pip
+  - pip install codecov
   - psql -c 'create database pur_beurre;' -U postgres
 
 install:
@@ -31,4 +32,8 @@ before_script:
 
 script:
   - python manage.py collectstatic --noinput
-  - coverage run manage.py test -b
+  - python manage.py test -b
+  - coverage xml
+
+after_success:
+  - codecov
