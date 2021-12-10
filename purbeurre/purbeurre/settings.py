@@ -13,10 +13,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from os import getenv
 from pathlib import Path
 
-# import environ
+import sentry_sdk
 import dj_database_url
 from dotenv import load_dotenv
 from purbeurre.utils import strtobool
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +28,9 @@ load_dotenv(dotenv_path=BASE_DIR / 'purbeurre/.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
+# The application environment.
+APP_ENV = getenv('APP_ENV', 'production')
+
 # Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
 SECRET_KEY = getenv('SECRET_KEY')
 
@@ -34,8 +38,8 @@ SECRET_KEY = getenv('SECRET_KEY')
 DEBUG = strtobool(getenv('DEBUG', False))
 
 ALLOWED_HOSTS = [
-    '0.0.0.0', 'localhost', '127.0.0.1', 'purbeurre-django.herokuapp.com'
-]
+    '0.0.0.0', 'localhost', '127.0.0.1',
+] + (getenv('ADDS_ALLOWED_HOSTS').split('|') if getenv('ADDS_ALLOWED_HOSTS') else [])
 
 # Application definition
 
@@ -47,7 +51,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'whitenoise.runserver_nostatic',
     'algoliasearch_django',
 
     # Project apps
@@ -59,9 +62,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # Simplified static file serving.
-    # https://warehouse.python.org/project/whitenoise/
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,6 +69,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if APP_ENV == 'development':  # pragma: no cover Add App(s)/Middleware(s) for the development.
+    INSTALLED_APPS.append(*[
+        'whitenoise.runserver_nostatic',
+    ])
+
+    MIDDLEWARE.append(*[
+        # Simplified static file serving.
+        # https://warehouse.python.org/project/whitenoise/
+        'whitenoise.middleware.WhiteNoiseMiddleware'
+    ])
 
 ROOT_URLCONF = 'purbeurre.urls'
 
@@ -147,7 +158,8 @@ USE_TZ = True
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if APP_ENV == 'development':  # pragma: no cover
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -162,3 +174,18 @@ ALGOLIA = {
     'APPLICATION_ID': getenv('ALGOLIA_APP_ID'),
     'API_KEY': getenv('ALGOLIA_API_KEY'),
 }
+
+# Sentry configuration
+sentry_sdk.init(
+    dsn=getenv('SENTRY_DSN'),
+    integrations=[DjangoIntegration()],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # Adjusting this value is recommend in production.
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
