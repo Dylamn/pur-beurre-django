@@ -189,3 +189,9 @@ sentry_sdk.init(
     # django.contrib.auth) you may enable sending PII data.
     send_default_pii=True
 )
+
+if APP_ENV == 'production':
+    SECURE_HSTS_SECONDS = int(getenv('HSTS_SECONDS', 31_536_000))
+    SECURE_SSL_REDIRECT = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
