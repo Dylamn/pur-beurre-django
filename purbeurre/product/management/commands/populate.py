@@ -4,6 +4,7 @@ from math import ceil
 
 import httpx
 from algoliasearch_django.decorators import disable_auto_indexing
+from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
@@ -83,6 +84,8 @@ class Command(BaseCommand):
                 f"and {count[1]} categories. ({elapsed_time:.2f} seconds)"
             )
         )
+        call_command('algolia_reindex')
+
 
     @staticmethod
     @disable_auto_indexing()
@@ -137,7 +140,7 @@ class Command(BaseCommand):
 
         async with httpx.AsyncClient() as client:
             for page in range(first_page, (last_page + 1)):
-                # Create a new instance for each requests.
+                # Create a new instance for each request.
                 p = params.copy()
                 p['page'] = page
 
