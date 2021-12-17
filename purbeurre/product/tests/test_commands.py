@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core.management import call_command
 
 from product.management.commands.populate import Command
@@ -45,6 +45,7 @@ async def fetch_products_mock(self, params, last_page=None) -> list:
 
 @mock.patch.object(Command, "_fetch_products",
                    side_effect=fetch_products_mock, autospec=True)
+@override_settings(APP_ENV='testing')
 class CommandsTestCase(TestCase):
     def test_populate_command(self, _mock: mock.MagicMock):
         """Test the custom command `populate`."""

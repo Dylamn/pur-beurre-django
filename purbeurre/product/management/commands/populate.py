@@ -8,6 +8,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.text import slugify
 
+from django.conf import settings
 from product.models import Product, Category
 
 
@@ -84,8 +85,9 @@ class Command(BaseCommand):
                 f"and {count[1]} categories. ({elapsed_time:.2f} seconds)"
             )
         )
-        call_command('algolia_reindex')
 
+        if settings.APP_ENV != 'testing':
+            call_command('algolia_reindex')
 
     @staticmethod
     @disable_auto_indexing()
