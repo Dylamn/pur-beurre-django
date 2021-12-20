@@ -86,7 +86,7 @@ class Command(BaseCommand):
             )
         )
 
-        if settings.APP_ENV != 'testing':
+        if settings.APP_ENV != 'testing':  # pragma: no cover
             call_command('algolia_reindex')
 
     @staticmethod
