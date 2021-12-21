@@ -85,9 +85,8 @@ class Command(BaseCommand):
                 f"and {count[1]} categories. ({elapsed_time:.2f} seconds)"
             )
         )
-
-        if settings.APP_ENV != 'testing':  # pragma: no cover
-            call_command('algolia_reindex')
+        # Reindex items of the algolia indice.
+        call_command('algolia_reindex')
 
     @staticmethod
     @disable_auto_indexing()
