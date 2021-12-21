@@ -194,7 +194,7 @@ sentry_sdk.init(
     send_default_pii=True
 )
 
-if APP_ENV == 'production':
+if APP_ENV == 'production':  # pragma: no cover
     SECURE_HSTS_SECONDS = int(getenv('HSTS_SECONDS', 31_536_000))
     SECURE_SSL_REDIRECT = True
     CSRF_COOKIE_SECURE = True
