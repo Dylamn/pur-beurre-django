@@ -39,7 +39,11 @@ DEBUG = strtobool(getenv('DEBUG', False))
 
 ALLOWED_HOSTS = [
     '0.0.0.0', 'localhost', '127.0.0.1',
-] + (getenv('ADDS_ALLOWED_HOSTS').split('|') if getenv('ADDS_ALLOWED_HOSTS') else [])
+]
+
+ALLOWED_HOSTS.extend(
+    getenv('ADDS_ALLOWED_HOSTS').split('|') if getenv('ADDS_ALLOWED_HOSTS') else []
+)
 
 # Application definition
 
@@ -189,3 +193,9 @@ sentry_sdk.init(
     # django.contrib.auth) you may enable sending PII data.
     send_default_pii=True
 )
+
+if APP_ENV == 'production':  # pragma: no cover
+    SECURE_HSTS_SECONDS = int(getenv('HSTS_SECONDS', 31_536_000))
+    SECURE_SSL_REDIRECT = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True

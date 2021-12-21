@@ -5,7 +5,7 @@ from unittest import mock
 from django.test import TestCase
 from django.core.management import call_command
 
-from product.management.commands.populate import Command
+from product.management.commands.populate import Command as PopulateCommand
 from product.models import Product
 
 
@@ -43,7 +43,12 @@ async def fetch_products_mock(self, params, last_page=None) -> list:
     return [fake_json]
 
 
-@mock.patch.object(Command, "_fetch_products",
+def algolia_reindex_fake(self, *args, **options):
+    """Fake the `algolia_reindex` command."""
+    print("Reindexing Indices...")
+
+
+@mock.patch.object(PopulateCommand, "_fetch_products",
                    side_effect=fetch_products_mock, autospec=True)
 class CommandsTestCase(TestCase):
     def test_populate_command(self, _mock: mock.MagicMock):
@@ -57,6 +62,10 @@ class CommandsTestCase(TestCase):
         # Call the `populate` command.
         # For the test, we'll limit the numbers of products
         # and expect an import of eight products.
-        call_command('populate', *args, **opts)
+        with mock.patch(
+                'algoliasearch_django.management.commands.algolia_reindex.Command.handle',
+                new=algolia_reindex_fake
+        ):
+            call_command('populate', *args, **opts)
 
         self.assertEqual(8, Product.objects.count())
