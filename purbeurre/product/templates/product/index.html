@@ -1,5 +1,7 @@
 {% extends 'layouts/base.html' %}
 
+{% load product_filters %}
+
 {% block title %}{{ meta.input_query|capfirst }}{% endblock %}
 
 {% block styles %}
@@ -67,6 +69,7 @@
                     {% endif %}
 
                     {% for page in meta.page_range %}
+                    {% for page in meta.page_range|pagination_range:meta.page %}
                         {% if meta.page == page %}
                             <li class="page-item active">
                                 <a class="page-link"

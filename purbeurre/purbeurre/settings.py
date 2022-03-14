@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'product.apps.ProductConfig',
     'substitute.apps.SubstituteConfig',
+    'review.apps.ReviewConfig',
 ]
 
 MIDDLEWARE = [

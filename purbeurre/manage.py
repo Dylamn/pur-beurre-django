@@ -7,7 +7,8 @@ import sys
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'purbeurre.settings')
-    running_tests = sys.argv[1] == 'test'
+    # len < 2 means no parameter is passed to the script (e.g. "./manage.py")
+    running_tests = False if len(sys.argv) < 2 else sys.argv[1] == 'test'
 
     try:
         if running_tests:
