@@ -16,6 +16,8 @@ class Review(models.Model):
         created_at (str): The datetime where the review has been created.
         updated_at (str): The datetime where the review last update occurs.
     """
+    class Meta:
+        ordering = ['id']
 
     title = models.CharField(max_length=64)
     content = models.TextField(null=False)
@@ -25,13 +27,16 @@ class Review(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='user_id'
+        null=False
     )
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='product_id',
+        null=False
     )
     # Timestamps columns
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'Review n°{self.pk}'

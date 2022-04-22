@@ -3,6 +3,7 @@ from django.views.generic import DetailView
 from algoliasearch_django import raw_search
 
 from .models import Product
+from review.services import ReviewService
 
 
 def index(request):
@@ -47,5 +48,12 @@ class ProductDetailView(DetailView):
         ctx = super().get_context_data(**kwargs)
         # Add a list containing the nutriscore letters
         ctx.setdefault('nutriscore_letters', ['a', 'b', 'c', 'd', 'e'])
+
+        ctx['reviews'], ctx['user_review'] = ReviewService.get_product_reviews(
+            request=self.request, product_id=self.object.id
+        )
+        ctx['avg_reviews_rating'], ctx['total_reviews'] = ReviewService.get_avg_product_reviews_rating(
+            product_id=self.object.id
+        )
 
         return ctx

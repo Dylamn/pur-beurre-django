@@ -23,8 +23,9 @@ urlpatterns = [
     path('products/', include('product.urls')),
     path('accounts/', include('account.urls')),
     path('substitutes/', include('substitute.urls')),
-    path('admin/', admin.site.urls),
+    path('reviews/', include('review.urls')),
 
+    path('admin/', admin.site.urls),
 ]
 
 handler404 = views.handler404

@@ -1,0 +1,32 @@
+<article class="mt-4 review-bg">
+    <header class="review-header border-bottom">
+        <span class="review-title">{{ review.title }}</span>
+        {% include 'review/rating.html' with rating=review.rating %}
+    </header>
+    <p class="comment bottom-separator">
+        {{ review.content }}
+    </p>
+    <div class="d-flex justify-content-between flex-column flex-md-row">
+        <div class="d-flex flex-column flex-sm-row">
+            <span>
+                Avis par {{ review.user.username }} le {{ review.created_at|date:"d-m-Y" }}
+            </span>
+            {% if review.created_at != review.updated_at %}
+                <span class="ms-0 ms-sm-1">| Modifié le {{ review.updated_at }}</span>
+            {% endif %}
+        </div>
+
+        {% if user.id == review.user_id %}
+            <div class="manage-buttons justify-content-end">
+                <a href="{% url 'review:review' pk=review.id %}">
+                    <button class="btn btn-primary">Modifier</button>
+                </a>
+                <form class="delete-review-form" action="{% url 'review:review' pk=review.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete" value="1"/>
+                    <button id="delete-btn" type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</article>
