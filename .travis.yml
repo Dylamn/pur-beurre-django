@@ -13,7 +13,8 @@ services:
   - postgresql
 
 before_install:
-  - wget https://chromedriver.storage.googleapis.com/96.0.4664.45/chromedriver_linux64.zip
+  - current_stable=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+  - wget https://chromedriver.storage.googleapis.com/$current_stable/chromedriver_linux64.zip
   - unzip chromedriver_linux64.zip
   - sudo mv chromedriver /usr/bin/chromedriver
   - python --version
