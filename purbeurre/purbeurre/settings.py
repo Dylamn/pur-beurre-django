@@ -111,7 +111,7 @@ WSGI_APPLICATION = 'purbeurre.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        conn_max_age=600, ssl_require=strtobool(getenv('DB_SSLMODE', True))
+        ssl_require=strtobool(getenv('DB_SSLMODE', True))
     )
 }
 

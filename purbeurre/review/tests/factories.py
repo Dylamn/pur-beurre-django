@@ -13,7 +13,7 @@ class ReviewFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Review
 
-    title = fake.words(nb=3)
+    title = " ".join(fake.words(nb=3))
     content = fake.text()
     rating = fake.random_int(min=1, max=5)
 

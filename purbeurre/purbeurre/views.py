@@ -2,4 +2,4 @@ from django.shortcuts import render
 
 
 def handler404(request, exception):
-    return render(request, 'product/404.html', status=404)
+    return render(request, 'errors/404.html', status=404)

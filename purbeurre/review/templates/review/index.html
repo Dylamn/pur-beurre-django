@@ -9,18 +9,18 @@
     </div>
     {% if user.is_authenticated %}
         {% if user_review %}
-            <div class="bg-light p-2 rounded">
+            <div id="my_review" class="bg-light p-2 rounded">
                 <p class="fs-5">Votre avis</p>
                 {% include 'review/review.html' with review=user_review %}
             </div>
         {% else %}
             <div class="col-md-12">
                 <p>Rédiger votre avis</p>
-                <form action="{% url 'review:store' %}" method="POST">
+                <form id="store_review_form" action="{% url 'review:store' %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" id="product_id" name="product_id" value="{{ product_id }}">
                     {% include 'review/form.html' %}
-                    <button type="submit" class="btn btn-primary mt-3">Soumettre</button>
+                    <button id="store_review_btn" type="submit" class="btn btn-primary mt-3">Soumettre</button>
                 </form>
             </div>
         {% endif %}

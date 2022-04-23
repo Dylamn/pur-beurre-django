@@ -148,7 +148,7 @@ class ProductDetailViewTests(TestCase):
 
         self.assertEqual(404, response.status_code)
         self.assertTemplateNotUsed(response, template_name='product/show.html')
-        self.assertTemplateUsed(response, template_name='product/404.html')
+        self.assertTemplateUsed(response, template_name='errors/404.html')
 
     @disable_auto_indexing()
     def test_detail_view_search_substitute_button(self):

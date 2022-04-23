@@ -1,5 +1,3 @@
-from math import floor
-from operator import itemgetter
 from typing import Union
 
 from django.core.paginator import Paginator, Page
@@ -35,4 +33,4 @@ class ReviewService:
         total_reviews = len(query)
         avg = query.aggregate(Avg('rating')).get('rating__avg')
 
-        return floor(avg or 0), total_reviews
+        return round(avg or 0), total_reviews
