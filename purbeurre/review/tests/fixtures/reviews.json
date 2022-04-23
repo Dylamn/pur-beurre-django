@@ -1,0 +1,171 @@
+[
+  {
+    "model": "review.review",
+    "pk": 1,
+    "fields": {
+      "title": "Awesome product",
+      "content": "This product is a test.",
+      "rating": 5,
+      "user": 1,
+      "product": 1,
+      "created_at": "2022-03-25T10:51:49.684Z",
+      "updated_at": "2022-03-25T10:51:49.684Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 2,
+    "fields": {
+      "title": "Super produit",
+      "content": "Ce produit est un test.",
+      "rating": 3,
+      "user": 2,
+      "product": 1,
+      "created_at": "2022-03-25T10:51:49.684Z",
+      "updated_at": "2022-03-25T10:51:49.684Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 3,
+    "fields": {
+      "title": "名品",
+      "content": "この製品はテストです。",
+      "rating": 5,
+      "user": 3,
+      "product": 1,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T22:29:42.820Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 4,
+    "fields": {
+      "title": "伟大的产品",
+      "content": "这个产品是一个测试。",
+      "rating": 4,
+      "user": 4,
+      "product": 1,
+      "created_at": "2022-04-18T21:04:51.894Z",
+      "updated_at": "2022-04-18T21:04:51.894Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 5,
+    "fields": {
+      "title": "Un producto excelente",
+      "content": "Este producto es una prueba.",
+      "rating": 4,
+      "user": 5,
+      "product": 1,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 6,
+    "fields": {
+      "title": "Tolles Produkt",
+      "content": "Dieses Produkt ist ein Test.",
+      "rating": 3,
+      "user": 6,
+      "product": 1,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 7,
+    "fields": {
+      "title": "Ottimo prodotto",
+      "content": "Questo prodotto è un test.",
+      "rating": 5,
+      "user": 7,
+      "product": 1,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 8,
+    "fields": {
+      "title": "Fantastisk produkt",
+      "content": "Dette produkt er en test.",
+      "rating": 5,
+      "user": 8,
+      "product": 1,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 9,
+    "fields": {
+      "title": "Geweldig product",
+      "content": "Dit product is een test.",
+      "rating": 5,
+      "user": 9,
+      "product": 1,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 10,
+    "fields": {
+      "title": "Wspaniały produkt",
+      "content": "Ten produkt jest testem.",
+      "rating": 2,
+      "user": 10,
+      "product": 1,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 11,
+    "fields": {
+      "title": "Produto fantástico",
+      "content": "Este produto é um teste.",
+      "rating": 3,
+      "user": 11,
+      "product": 1,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 12,
+    "fields": {
+      "title": "This product is a Queen",
+      "content": "Another one bite the review!!",
+      "rating": 5,
+      "user": 1,
+      "product": 2,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  },
+  {
+    "model": "review.review",
+    "pk": 13,
+    "fields": {
+      "title": "A great choice",
+      "content": "Buy it!!",
+      "rating": 5,
+      "user": 2,
+      "product": 3,
+      "created_at": "2022-04-15T16:42:58.615Z",
+      "updated_at": "2022-04-21T21:34:21.250Z"
+    }
+  }
+]

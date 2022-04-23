@@ -37,6 +37,12 @@ SECRET_KEY = getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = strtobool(getenv('DEBUG', False))
 
+FIXTURE_DIRS = [
+    BASE_DIR / "account/tests/fixtures",
+    BASE_DIR / "product/tests/fixtures",
+    BASE_DIR / "review/tests/fixtures",
+]
+
 ALLOWED_HOSTS = [
     '0.0.0.0', 'localhost', '127.0.0.1',
 ]
