@@ -74,7 +74,6 @@ class SeleniumTests(SeleniumServerTestCase):
         self.wait = WebDriverWait(self.browser, timeout=5)
 
     def test_login_and_create_a_review(self) -> None:
-        # self.login(email=self.user_email, password=self.user_password)
         review_title = 'A Beautiful thing'
         review_content = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.'
         review_rating = 4
@@ -96,7 +95,6 @@ class SeleniumTests(SeleniumServerTestCase):
         self.assertFalse("Votre avis" in self.browser.page_source)
         self.assertFalse(review_title in self.browser.page_source)
         self.assertFalse(review_content in self.browser.page_source)
-        # print(self.browser.page_source)
         self.assertFalse(f"rating-{review_rating}" in self.browser.page_source)
 
         title_field = self.browser.find_element_by_id('review_title')

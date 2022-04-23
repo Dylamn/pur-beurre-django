@@ -28,7 +28,10 @@ class SeleniumServerTestCase(LiveServerTestCase):
 
     def e2e_login(self, *, email: str, password: str):
         """Log in the user through the login page like a real user."""
-        self.assertTrue("Login" in self.browser.title)
+        self.assertTrue(
+            "Login" in self.browser.title,
+            msg="`e2e_login` method need the webdriver to be located on the login page before being called."
+        )
 
         email_field = self.browser.find_element_by_id('username')
         password_field = self.browser.find_element_by_id('password')
