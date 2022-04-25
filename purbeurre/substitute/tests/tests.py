@@ -1,9 +1,14 @@
+from unittest import mock
+
 from algoliasearch_django.decorators import disable_auto_indexing
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase, TransactionTestCase, tag
 from django.shortcuts import reverse
+from selenium.webdriver.common.keys import Keys
 
 from account.tests.factories import UserFactory
 from product.tests.factories import ProductFactory, CategoryFactory
+from product.tests.utils import algolia_mock_responses
+from purbeurre.tests import SeleniumServerTestCase
 from .factories import UserSubstituteFactory
 from ..models import UserSubstitute
 
@@ -199,3 +204,26 @@ class DeleteUserSubstituteView(TestCase):
         self.assertTrue(
             UserSubstitute.objects.filter(id=self.user_substitute.pk).exists()
         )
+
+
+class SeleniumTests(SeleniumServerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(SeleniumTests, cls).setUpClass()
+
+    # TODO: Finish test implementation
+    @mock.patch("product.views.raw_search", side_effect=algolia_mock_responses, autospec=True)
+    def test_add_a_substitute_with_login(self, _mock: mock.MagicMock):
+        qs = "?query=Riz&page=1"
+        url = self.live_server_url + reverse('product:search') + qs
+
+        self.browser.get(url)
+
+        a_href_substitute = self.browser.find_element_by_xpath(
+            "//div[@class='product-header']/a/div/span[.='B' or .='C' or .='D' or .= 'E']"
+            "/ancestor::div[@class='product-header']/parent::node()/div[@class='product-info']/a"
+        )
+
+        a_href_substitute.click()
+
+        self.assertTrue(True)

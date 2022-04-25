@@ -125,6 +125,32 @@ class LoginViewTests(TestCase):
         self.assertContains(response, "Adresse email ou mot de passe incorrect.")
 
 
+class ProfileViewTests(TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        super(ProfileViewTests, cls).setUpClass()
+        cls.url = reverse('profile')
+
+    def setUp(self) -> None:
+        self.user = UserFactory(password='password123')
+        self.client.force_login(self.user)
+
+    def test_profile_template(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, template_name='account/profile.html')
+
+    def test_profile_page_content(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, self.user.last_name)
+        self.assertContains(response, self.user.first_name)
+        self.assertContains(response, self.user.email)
+
+
 @tag('selenium')
 class SeleniumTests(LiveServerTestCase):
     # Each user of the fixture `users.json` has a password with "password" as value

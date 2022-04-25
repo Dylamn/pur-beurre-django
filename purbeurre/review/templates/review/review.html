@@ -24,7 +24,7 @@
                 <form class="delete-review-form" action="{% url 'review:review' pk=review.id %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="delete" value="1"/>
-                    <button id="delete-btn" type="submit" class="btn btn-danger">Supprimer</button>
+                    <button id="delete_btn" type="submit" class="btn btn-danger">Supprimer</button>
                 </form>
             </div>
         {% endif %}

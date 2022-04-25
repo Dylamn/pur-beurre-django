@@ -1,14 +1,16 @@
-from django.test import TestCase, LiveServerTestCase, tag
 from django.shortcuts import reverse
+from django.test import TestCase, tag
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support.ui import WebDriverWait
 
-from .factories import ReviewFactory
+from account.models import User
 from account.tests.factories import UserFactory
 from product.tests.factories import ProductFactory
 from purbeurre.tests import SeleniumServerTestCase
+from .factories import ReviewFactory
 
 
 class ReviewViewsTests(TestCase):
@@ -61,6 +63,19 @@ class SeleniumTests(SeleniumServerTestCase):
         cls.user_email = 'bob.dylan@example.com'
         cls.user_password = 'password'
 
+    @staticmethod
+    def set_range_input_value(field, value):
+        """Set the value property of a "range" type input."""
+        while int(field.get_property('value')) != value:
+            field.send_keys(
+                Keys.LEFT if int(field.get_property('value')) > value else Keys.RIGHT
+            )
+
+    @staticmethod
+    def get_review_rating_xpath(rating) -> str:
+        """Get the "rating element" xpath of the authenticated user's review."""
+        return f"//div[@id='my_review']/article/header/p/span[@class='rating rating-{rating}']"
+
     def setUp(self) -> None:
         """Hook method for setting up the test fixture before exercising it."""
         self.product = ProductFactory.create()
@@ -72,6 +87,10 @@ class SeleniumTests(SeleniumServerTestCase):
 
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.wait = WebDriverWait(self.browser, timeout=5)
+
+    def tearDown(self) -> None:
+        """Hook method for deconstructing the test fixture after testing it."""
+        self.browser.quit()
 
     def test_login_and_create_a_review(self) -> None:
         review_title = 'A Beautiful thing'
@@ -95,7 +114,7 @@ class SeleniumTests(SeleniumServerTestCase):
         self.assertFalse("Votre avis" in self.browser.page_source)
         self.assertFalse(review_title in self.browser.page_source)
         self.assertFalse(review_content in self.browser.page_source)
-        self.assertFalse(f"rating-{review_rating}" in self.browser.page_source)
+        self.assertElementNotExists(self.get_review_rating_xpath(review_rating))
 
         title_field = self.browser.find_element_by_id('review_title')
         content_field = self.browser.find_element_by_id('review_content')
@@ -105,8 +124,7 @@ class SeleniumTests(SeleniumServerTestCase):
         title_field.send_keys(review_title)
         content_field.send_keys(review_content)
 
-        while int(rating_field.get_property('value')) != review_rating:
-            rating_field.send_keys(Keys.LEFT if int(rating_field.get_property('value')) > review_rating else Keys.RIGHT)
+        self.set_range_input_value(rating_field, value=review_rating)
 
         submit_button.send_keys(Keys.ENTER)  # Submit form
 
@@ -114,7 +132,72 @@ class SeleniumTests(SeleniumServerTestCase):
         self.assertTrue(review_title in self.browser.page_source)
         self.assertTrue(review_content in self.browser.page_source)
         self.assertTrue(f"rating-{review_rating}" in self.browser.page_source)
+        self.assertElementExists(self.get_review_rating_xpath(review_rating))
 
-    def tearDown(self) -> None:
-        """Hook method for deconstructing the test fixture after testing it."""
-        self.browser.quit()
+    def test_edit_a_review(self):
+        user = User.objects.get(email=self.user_email)
+        the_review = ReviewFactory(user=user, product=self.product, rating=1)
+        url = self.live_server_url + reverse('product:show', args=(the_review.product_id,))
+
+        new_review_title = "I've updated my review!!"
+        new_review_content = 'Updated e2e content!'
+        new_review_rating = 5
+
+        self.browser.get(url)
+        self.login(email=self.user_email, password=self.user_password)
+
+        self.assertTrue("Votre avis" in self.browser.page_source)
+        self.assertTrue(the_review.title in self.browser.page_source)
+        self.assertTrue(the_review.content in self.browser.page_source)
+        self.browser.find_element_by_xpath(self.get_review_rating_xpath(the_review.rating))
+
+        href = f"{reverse('review:review', args=(the_review.id,))}"
+        button = self.browser.find_element_by_xpath(f"//a[@href='{href}']/button[text()='Modifier']")
+        button.send_keys(Keys.ENTER)
+
+        self.assertTrue("Modifier mon avis" in self.browser.title)
+
+        title_field = self.browser.find_element_by_id("review_title")
+        content_field = self.browser.find_element_by_id("review_content")
+        rating_field = self.browser.find_element_by_id("review_rating")
+        submit_button = self.browser.find_element_by_xpath("//button[text()='Soumettre']")
+
+        self.set_range_input_value(rating_field, value=new_review_rating)
+
+        title_field.send_keys(new_review_title)
+        content_field.send_keys(new_review_content)
+
+        submit_button.send_keys(Keys.ENTER)
+
+        self.assertTrue(new_review_title in self.browser.page_source)
+        self.assertTrue(new_review_content in self.browser.page_source)
+        self.assertElementExists(self.get_review_rating_xpath(new_review_rating))
+
+    def test_delete_a_review(self):
+        user = User.objects.get(email=self.user_email)
+        the_review = ReviewFactory(user=user, product=self.product)
+        url = self.live_server_url + reverse('product:show', args=(the_review.product_id,))
+
+        self.login(email=self.user_email, password=self.user_password)
+
+        self.browser.get(url)
+
+        self.assertTrue("Votre avis" in self.browser.page_source)
+        self.assertTrue(the_review.title in self.browser.page_source)
+        self.assertTrue(the_review.content in self.browser.page_source)
+        self.assertElementExists(self.get_review_rating_xpath(the_review.rating))
+
+        delete_button = self.browser.find_element_by_xpath(
+            "//div[@id='my_review']/*/*/*/form[@class='delete-review-form']/button[@id='delete_btn']"
+        )
+
+        delete_button.send_keys(Keys.ENTER)
+        alert = Alert(self.browser)
+
+        alert.accept()
+
+        self.assertFalse("Votre avis" in self.browser.page_source)
+        self.assertFalse(the_review.title in self.browser.page_source)
+        self.assertFalse(the_review.content in self.browser.page_source)
+        self.assertElementNotExists(self.get_review_rating_xpath(the_review.rating))
+        self.assertTrue("Rédiger votre avis" in self.browser.page_source)
