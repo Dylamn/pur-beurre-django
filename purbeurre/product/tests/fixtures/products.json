@@ -373,7 +373,7 @@
   },
   {
     "model": "product.product",
-    "pk": 4,
+    "pk": 9,
     "fields": {
       "name": "Riz au lait vache",
       "slug": "riz-au-lait-vache",

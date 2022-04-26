@@ -1,6 +1,7 @@
 from unittest import mock
 
 from algoliasearch_django.decorators import disable_auto_indexing
+from django.core.management import call_command
 from django.test import TestCase, TransactionTestCase, tag
 from django.shortcuts import reverse
 from selenium.webdriver.common.keys import Keys
@@ -207,6 +208,8 @@ class DeleteUserSubstituteView(TestCase):
 
 
 class SeleniumTests(SeleniumServerTestCase):
+    fixtures = ['users', 'products']
+
     @classmethod
     def setUpClass(cls):
         super(SeleniumTests, cls).setUpClass()
@@ -227,3 +230,4 @@ class SeleniumTests(SeleniumServerTestCase):
         a_href_substitute.click()
 
         self.assertTrue(True)
+        print(self.browser.page_source)
