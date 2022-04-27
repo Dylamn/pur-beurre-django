@@ -6,17 +6,18 @@
     {{ block.super }}
     {% load static %}
     <link rel="stylesheet" href="{% static 'product/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'review/css/style.css' %}">
 {% endblock %}
 
 {% block content %}
     <div class="container offset-header">
-        <div class="row mb-5">
+        <div class="row">
             <div class="text-center">
                 <h2>« {{ product.name }} »</h2>
             </div>
             <hr>
         </div>
-        <section class="row">
+        <section id="product" class="row pb-4 mb-3">
             <div class="col-md-4">
                 <img src="{{ product.image_url }}" class="img-fluid" alt="{{ product.name }}">
             </div>
@@ -48,9 +49,15 @@
                 </div>
             </div>
         </section>
+        {% include 'review/index.html' with reviews=reviews user_review=user_review product_id=product.id avg_reviews_rating=avg_reviews_rating total_reviews=total_reviews %}
     </div>
 {% endblock %}
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'review/js/confirm-delete.js' %}"></script>
+
+    {% if not user_review %}
+        <script src="{% static 'review/js/rating-input.js' %}"></script>
+    {% endif %}
 {% endblock %}

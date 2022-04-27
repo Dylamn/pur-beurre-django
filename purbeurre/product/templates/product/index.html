@@ -1,5 +1,7 @@
 {% extends 'layouts/base.html' %}
 
+{% load product_filters %}
+
 {% block title %}{{ meta.input_query|capfirst }}{% endblock %}
 
 {% block styles %}
@@ -66,7 +68,15 @@
                         <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
                     {% endif %}
 
-                    {% for page in meta.page_range %}
+                    {% if meta.page > 3 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{% url 'product:search' %}?query={{ meta.input_query }}&page=1">
+                                1
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for page in meta.page_range|pagination_range:meta.page %}
                         {% if meta.page == page %}
                             <li class="page-item active">
                                 <a class="page-link"
@@ -83,6 +93,17 @@
                             </li>
                         {% endif %}
                     {% endfor %}
+
+                    {% with current_page=meta.page %}
+                        {% if meta.last_page >= current_page|add:3 %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="{% url 'product:search' %}?query={{ meta.input_query }}&page={{ meta.last_page }}">
+                                    {{ meta.last_page }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endwith %}
 
                     {% if meta.next_page %}
                         <li class="page-item">

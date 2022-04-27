@@ -1,41 +1,11 @@
-import json
-from pathlib import Path
 from unittest import mock
 
 from algoliasearch_django.decorators import disable_auto_indexing
 from django.test import TestCase
 from django.shortcuts import reverse
+from product.tests.utils import algolia_mock_responses
 
-from product.models import Product
 from .factories import CategoryFactory, ProductFactory
-
-
-def algolia_mock_responses(model, query: str = "", params=None):  # pragma: no cover
-    """Function used for the return value of the mocked raw_search function."""
-    if params is None:
-        params = {}
-
-    if query.lower() == 'riz':
-        test_path = Path().absolute()
-
-        if model is Product:
-            test_path = test_path / 'product/tests/hits.json'
-
-        with open(test_path, 'r') as f:
-            return json.load(f)
-
-    return {
-        'hits': [],
-        'nbHits': 0,
-        'page': 0,
-        'nbPages': 0,
-        'hitsPerPage': 6,
-        'exhaustiveNbHits': True,
-        'query': query,
-        'params': f'query={query}&hitsPerPage=6',
-        'renderingContent': {},
-        'processingTimeMS': 2
-    }
 
 
 class ProductModelTests(TestCase):
@@ -148,7 +118,7 @@ class ProductDetailViewTests(TestCase):
 
         self.assertEqual(404, response.status_code)
         self.assertTemplateNotUsed(response, template_name='product/show.html')
-        self.assertTemplateUsed(response, template_name='product/404.html')
+        self.assertTemplateUsed(response, template_name='errors/404.html')
 
     @disable_auto_indexing()
     def test_detail_view_search_substitute_button(self):

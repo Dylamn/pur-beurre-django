@@ -1,0 +1,78 @@
+<!-- Reviews -->
+<section id="reviews" class="pt-3 mb-5 border-top">
+    <div class="reviews-section-header">
+        <p class="fs-3">Les avis</p>
+        <div class="d-flex">
+            {% include 'review/rating.html' with rating=avg_reviews_rating %}
+            <span class="m-1">{{ total_reviews }} avis</span>
+        </div>
+    </div>
+    {% if user.is_authenticated %}
+        {% if user_review %}
+            <div id="my_review" class="bg-light p-2 rounded">
+                <p class="fs-5">Votre avis</p>
+                {% include 'review/review.html' with review=user_review %}
+            </div>
+        {% else %}
+            <div class="col-md-12">
+                <p>Rédiger votre avis</p>
+                <form id="store_review_form" action="{% url 'review:store' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="product_id" name="product_id" value="{{ product_id }}">
+                    {% include 'review/form.html' %}
+                    <button id="store_review_btn" type="submit" class="btn btn-primary mt-3">Soumettre</button>
+                </form>
+            </div>
+        {% endif %}
+    {% else %} {# The current user is a guest. #}
+        <div class="d-flex flex-column align-items-center">
+            <span class="my-2">Vous devez être authentifié pour pouvoir rédiger un avis.</span>
+            <a href="{% url 'login' %}?next={% url 'product:show' pk=product_id %}">
+                <button class="btn btn-primary">Se connecter</button>
+            </a>
+        </div>
+    {% endif %}
+    <div class="col-md-12">
+        {% for review in reviews %}
+            {% include 'review/review.html' with review=review %}
+        {% empty %}
+            {% if not user_review %}
+                <div class="d-flex justify-content-center m-4 fs-4">
+                    Aucun avis déposé pour ce produit actuellement.
+                </div>
+            {% endif %}
+        {% endfor %}
+        <!-- Reviews pagination -->
+        {% if reviews %}
+            <ul class="pagination">
+                {% if reviews.has_previous %}
+                    <li class="page-item"><a href="?page=1" class="page-link">&laquo; 1</a></li>
+                    {% if reviews.number != 2 %}
+                        <li class="page-item">
+                            <a href="?page={{ reviews.previous_page_number }}" class="page-link">
+                                {{ reviews.previous_page_number }}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+
+                <li class="page-item active"><a href="#" class="page-link">{{ reviews.number }}</a></li>
+
+                {% if reviews.has_next %}
+                    <li class="page-item">
+                        <a href="?page={{ reviews.next_page_number }}" class="page-link">
+                            {{ reviews.next_page_number }}
+                        </a>
+                    </li>
+                    {% if reviews.number != reviews.paginator.num_pages|add:-1 %}
+                        <li class="page-item">
+                            <a href="?page={{ reviews.paginator.num_pages }}" class="page-link">
+                                {{ reviews.paginator.num_pages }} &raquo;
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+</section>

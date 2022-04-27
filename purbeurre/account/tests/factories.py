@@ -14,14 +14,11 @@ class UserFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: fake.name() + str(n))
     first_name = fake.first_name()
     last_name = fake.last_name()
-
-    @factory.sequence
-    def email(iteration):  # First parameter is the `n` iteration and not the instance of the class.
-        return "{0}.{1}{2}@example.com".format(
-            factory.SelfAttribute('first_name'),
-            factory.SelfAttribute('last_name'),
-            iteration
-        )
+    email = factory.LazyAttribute(
+        lambda u: "{0}@example.com".format(
+            u.username
+        ).lower()
+    )
 
     password = factory.PostGenerationMethodCall('set_password', '-'.join(fake.words(3)))
 

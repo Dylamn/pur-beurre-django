@@ -23,12 +23,12 @@ class UserSubstitute(models.Model):
     original_product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="original_product_id",
+        related_name="substitued_set",
     )
     substitute_product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="substitute_product_id",
+        related_name="substituting_set",
     )
 
     # Timestamps columns

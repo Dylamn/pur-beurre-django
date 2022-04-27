@@ -37,6 +37,12 @@ SECRET_KEY = getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = strtobool(getenv('DEBUG', False))
 
+FIXTURE_DIRS = [
+    BASE_DIR / "account/tests/fixtures",
+    BASE_DIR / "product/tests/fixtures",
+    BASE_DIR / "review/tests/fixtures",
+]
+
 ALLOWED_HOSTS = [
     '0.0.0.0', 'localhost', '127.0.0.1',
 ]
@@ -62,6 +68,7 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'product.apps.ProductConfig',
     'substitute.apps.SubstituteConfig',
+    'review.apps.ReviewConfig',
 ]
 
 MIDDLEWARE = [
@@ -110,7 +117,7 @@ WSGI_APPLICATION = 'purbeurre.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        conn_max_age=600, ssl_require=strtobool(getenv('DB_SSLMODE', True))
+        ssl_require=strtobool(getenv('DB_SSLMODE', True))
     )
 }
 
