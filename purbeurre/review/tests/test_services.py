@@ -56,10 +56,14 @@ class ReviewServiceTests(TestCase):
 
     def test_get_average_product_reviews_rating(self) -> None:
         a_product = ProductFactory()
-        stars3_reviews = ReviewFactory.create_batch(size=3, rating=3, product=a_product)
-        stars5_reviews = ReviewFactory.create_batch(size=2, rating=5, product=a_product)
+        n_3stars_reviews = 3
+        n_5stars_reviews = 5
+        ReviewFactory.create_batch(size=n_3stars_reviews, rating=3, product=a_product)
+        ReviewFactory.create_batch(size=n_5stars_reviews, rating=5, product=a_product)
 
-        estimated_average = round((3 * 3 + 5 * 2) / 5)
+        estimated_average = round(
+            (3 * n_3stars_reviews + 5 * n_5stars_reviews) / (n_3stars_reviews + n_5stars_reviews)
+        )
         service_average, _ = ReviewService.get_avg_product_reviews_rating(product_id=a_product.id)
 
         self.assertEqual(estimated_average, service_average)

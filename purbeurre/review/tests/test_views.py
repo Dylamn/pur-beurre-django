@@ -2,8 +2,8 @@ from django.shortcuts import reverse
 from django.test import TestCase, tag
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
 from account.models import User
@@ -11,6 +11,7 @@ from account.tests.factories import UserFactory
 from product.tests.factories import ProductFactory
 from purbeurre.tests import SeleniumServerTestCase
 from .factories import ReviewFactory
+from ..models import Review
 
 
 class ReviewViewsTests(TestCase):
@@ -50,6 +51,33 @@ class ReviewViewsTests(TestCase):
         self.assertContains(response, a_review.title)
         self.assertContains(response, a_review.content)
         self.assertContains(response, f"rating-{review_rating}")
+
+    def test_update_an_existing_review(self):
+        self.client.force_login(user=self.user)
+        a_review = ReviewFactory(user=self.user, rating=4)
+        updated_values = {
+            'title': a_review.title[::-1],
+            'content': a_review.content[::-1],
+            'rating': a_review.rating + 1
+        }
+
+        response = self.client.post(reverse('review:review', args=(a_review.id,)), data=updated_values)
+
+        self.assertRedirects(response, expected_url=reverse('product:show', args=(a_review.product_id,)))
+
+        a_review.refresh_from_db()
+        self.assertEqual(a_review.title, updated_values['title'])
+        self.assertEqual(a_review.content, updated_values['content'])
+        self.assertEqual(a_review.rating, updated_values['rating'])
+
+    def test_delete_an_existing_review(self):
+        self.client.force_login(user=self.user)
+        review_to_delete = ReviewFactory(user=self.user)
+
+        response = self.client.post(reverse('review:review', args=(review_to_delete.id,)), data={'delete': True})
+
+        self.assertRedirects(response, expected_url=reverse('product:show', args=(review_to_delete.product_id,)))
+        self.assertFalse(Review.objects.filter(pk=review_to_delete.id).exists())
 
 
 @tag('selenium')

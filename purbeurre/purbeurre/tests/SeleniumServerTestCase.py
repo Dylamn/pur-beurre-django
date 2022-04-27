@@ -20,6 +20,10 @@ class SeleniumServerTestCase(LiveServerTestCase):
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.wait = WebDriverWait(self.browser, timeout=5)
 
+    def tearDown(self) -> None:
+        """Hook method for deconstructing the test fixture after testing it."""
+        self.browser.quit()
+
     def assertElementExists(self, xpath, msg=None) -> None:  # pragma: no cover
         try:
             self.browser.find_element_by_xpath(xpath)
