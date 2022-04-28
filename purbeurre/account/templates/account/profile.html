@@ -1,49 +1,195 @@
 {% extends 'layouts/base.html' %}
 
+{% block styles %}
+    {{ block.super }}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'account/css/profile.css' %}"/>
+{% endblock %}
+
 {% block title %}Profile{% endblock %}
 
 {% block content %}
     <div class="container offset-header">
-        <div class="offset-md-2 col-md-8">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Vos informations</h5>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h6 class="mb-0">Nom</h6>
-                        </div>
-                        <div class="col-sm-9 text-secondary">
-                            {{ user.last_name }}
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h6 class="mb-0">Prénom</h6>
-                        </div>
-                        <div class="col-sm-9 text-secondary">
-                            {{ user.first_name }}
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <h6 class="mb-0">Email</h6>
-                        </div>
-                        <div class="col-sm-9 text-secondary">
-                            {{ user.email }}
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="row">
-                        <div class="col-sm-12">
-                            {# TODO: Project upgrade -> modify profile #}
-                            <a href="#" class="btn btn-primary" disabled="true">Modifier</a>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card p-3 mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-6 mb-2 mb-xl-0">
+                                <form action="{% url 'profile' %}" method="post" class="row">
+                                    {% csrf_token %}
+                                    <div class="col-12">
+                                        <h5 class="card-title fs-1 fw-bold">Vos informations</h5>
+                                        <div class="card-text mb-1 text-secondary">Ces informations sont privées et ne
+                                            seront pas partagées. Vous pouvez lire la<a href="{% url 'home:terms' %}">
+                                                Politique de confidentialité</a> à tout moment !
+                                        </div>
+                                        {% if information_update_success %}
+                                            <div class="alert alert-success" role="alert">
+                                                Vos informations ont été mises à jour.
+                                            </div>
+                                        {% elif information_errors %}
+                                            <div class="alert alert-danger" role="alert">
+                                                {% for errors in information_errors.values %}
+                                                    {{ errors }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="field">
+                                            <div class="field__input">
+                                                <input type="text" id="last_name" name="last_name"
+                                                       value="{{ user.last_name }}" class="field__form-input"
+                                                       placeholder="&nbsp;" required
+                                                />
+                                                <label class="field__label">Nom</label>
+                                                <span class="field__placeholder">Nom</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <div class="field">
+                                            <div class="field__input">
+                                                <input type="text" id="first_name" name="first_name"
+                                                       value="{{ user.first_name }}" class="field__form-input"
+                                                       placeholder="&nbsp;" required
+                                                />
+                                                <label class="field__label">Prénom</label>
+                                                <span class="field__placeholder">Prénom</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <div class="field">
+                                            <div class="field__input">
+                                                <input type="email" id="email" name="email" value="{{ user.email }}"
+                                                       class="field__form-input" placeholder="&nbsp;" required
+                                                />
+                                                <label class="field__label">Email</label>
+                                                <span class="field__placeholder">Email</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            Enregistrer les informations
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-xl-6">
+                                <form action="{% url 'profile' %}" method="post" class="row">
+                                    {% csrf_token %}
+                                    <div class="col-12">
+                                        <h5 class="card-title fs-1 fw-bold">Connexion au compte</h5>
+                                        <div class="card-text mb-1 text-secondary">Nous vous conseillons de changer
+                                            régulièrement de mot de passe afin de réduire les risques d'accès non
+                                            autorisés à votre compte.
+                                        </div>
+                                        {% if password_update_success %}
+                                            <div class="alert alert-success" role="alert">
+                                                Votre mot de passe à été mise à jour.
+                                            </div>
+                                        {% elif password_errors %}
+                                            <div class="alert alert-danger" role="alert">
+                                                <ul class="m-0">
+                                                    {% for error in password_errors.values %}
+                                                        <li>{{ error }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-xl-12">
+                                        {% if errors.current_password %}
+                                            <div class="field--error invalid-field">
+                                                {{ errors.current_password }}
+                                            </div>
+                                        {% endif %}
+                                        <div class="field">
+                                            <div class="field__input is-invalid">
+                                                <input type="password" id="current_password" name="current_password"
+                                                       class="field__form-input" placeholder="&nbsp;" required
+                                                />
+                                                <label class="field__label">Mot de passe actuel</label>
+                                                <span class="field__placeholder">Mot de passe actuel</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        {% if errors.confirm_password %}
+                                            <div class="field--error invalid-field">
+                                                {{ errors.confirm_password }}
+                                            </div>
+                                        {% endif %}
+                                        <div class="field">
+                                            <div class="field__input">
+                                                <input type="password" id="new_password" name="new_password"
+                                                       class="field__form-input" placeholder="&nbsp;" required
+                                                />
+                                                <label class="field__label">Nouveau mot de passe</label>
+                                                <span class="field__placeholder">Nouveau mot de passe</span>
+                                            </div>
+                                        </div>
+                                        <div id='password_help' class="password-help d-none">
+                                            <div class="d-flex align-items-start">
+                                                <div class="position-relative me-1">
+                                                    <div id="password_length_check" class="unchecked"></div>
+                                                </div>
+                                                <span>Doit faire au moins 8 caractères.</span>
+                                            </div>
+                                            <div class="d-flex align-items-start">
+                                                <div class="position-relative me-1">
+                                                    <div id="password_variety_check" class="unchecked"></div>
+                                                </div>
+                                                <span>Doit contenir au moins un caractère non alphabétique.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <div class="field">
+                                            <div class="field__input">
+                                                <input type="password" id="confirm_new_password"
+                                                       name="confirm_new_password" class="field__form-input"
+                                                       placeholder="&nbsp;" required
+                                                />
+                                                <label class="field__label">Confirmez le nouveau mot de passe</label>
+                                                <span class="field__placeholder">Confirmez le nouveau mot de passe</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            Sauvegarder les modifications
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script defer src="{% static 'account/js/password_help.js' %}"></script>
+    <script>
+        const new_password = document.getElementById("new_password"),
+            confirm_new_password = document.getElementById("confirm_new_password");
+
+        function validatePassword () {
+            if (new_password.value !== confirm_new_password.value) {
+                confirm_new_password.setCustomValidity("Les mots de passe ne correspondent pas");
+            } else {
+                confirm_new_password.setCustomValidity('');
+            }
+        }
+
+        new_password.onchange = validatePassword;
+        confirm_new_password.onkeyup = validatePassword;
+    </script>
 {% endblock %}
