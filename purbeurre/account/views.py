@@ -40,8 +40,8 @@ class ProfileView(LoginRequiredMixin, View):
     @staticmethod
     def post(request, *args, **kwargs):
         if "current_password" in request.POST:
-            ctx = ProfileService.update_password(request, *args, **kwargs)
+            ctx, status = ProfileService.update_password(request, *args, **kwargs)
         else:
-            ctx = ProfileService.update_user_information(request, *args, **kwargs)
+            ctx, status = ProfileService.update_user_information(request, *args, **kwargs)
 
-        return render(request, template_name='account/profile.html', context=ctx)
+        return render(request, template_name='account/profile.html', context=ctx, status=status)

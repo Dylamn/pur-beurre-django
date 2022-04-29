@@ -14,10 +14,12 @@ class ProfileService:
         if form.is_valid():
             form.save()
             ctx['information_update_success'] = True
+            status = 200
         else:
             ctx['information_errors'] = form.errors
+            status = 400
 
-        return ctx
+        return ctx, status
 
     @staticmethod
     def update_password(request: HttpRequest, *args, **kwargs):
@@ -26,6 +28,7 @@ class ProfileService:
         new_password = request.POST.get('new_password')
         confirm_new_password = request.POST.get('confirm_new_password')
         ctx = {}
+        status = 200
 
         if not user.check_password(current_password):
             ctx['password_errors'] = {
@@ -44,4 +47,7 @@ class ProfileService:
             user.set_password(new_password)
             user.save()
 
-        return ctx
+        if 'password_errors' in ctx:
+            status = 400
+
+        return ctx, status

@@ -10,6 +10,7 @@ class CustomErrorList(ErrorList):
     def __init__(self, initlist=None, error_class=None):
         if error_class is None:
             error_class = 'mb-1'
+
         super(CustomErrorList, self).__init__(initlist=initlist, error_class=error_class)
         
 
