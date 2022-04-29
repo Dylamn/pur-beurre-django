@@ -1,14 +1,14 @@
+from django.shortcuts import reverse
 from django.test import TestCase, LiveServerTestCase, tag
 from django.utils.crypto import get_random_string
-from django.shortcuts import reverse
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.ui import WebDriverWait
 
-from account.models import User
 from account.forms import RegisterUserForm
+from account.models import User
 from account.tests.factories import UserFactory
 
 
@@ -81,8 +81,8 @@ class RegisterViewTests(TestCase):
         self.assertRedirects(response_success, reverse('home:index'), status_code=302, target_status_code=200)
 
         # When a registration request is successful, behind the scene, the user is automatically logged in.
-        # So, we must logout in order to clear the client session which keep the user authenticated.
-        # If we don't logout, the following request will results as an HTTP redirect response
+        # So, we must log out in order to clear the client session which keep the user authenticated.
+        # If we don't log out, the following request will result as an HTTP redirect response
         # because an authenticated user requested the register page.
         self.client.logout()
 
@@ -149,6 +149,94 @@ class ProfileViewTests(TestCase):
         self.assertContains(response, self.user.last_name)
         self.assertContains(response, self.user.first_name)
         self.assertContains(response, self.user.email)
+
+    def test_update_profile_personal_information_success(self):
+        new_data = {
+            'first_name': self.user.first_name[::-1],
+            'last_name': self.user.last_name[::-1],
+            'email': 'foo.bar@example.com'
+        }
+
+        response = self.client.post(self.url, data=new_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, template_name='account/profile.html')
+
+        self.assertContains(response, new_data['first_name'])
+        self.assertContains(response, new_data['last_name'])
+        self.assertContains(response, new_data['email'])
+        self.assertContains(response, "Vos informations ont été mises à jour.")
+
+        self.assertTrue(User.objects.filter(**new_data).exists())
+        self.assertFalse(
+            User.objects.filter(
+                first_name=self.user.first_name,
+                last_name=self.user.last_name,
+                email=self.user.email
+            ).exists()
+        )
+
+    def test_update_profile_personal_information_failure(self):
+        data = {
+            'email': 'alphabet.abc.xyz'
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(response, 'errorlist', status_code=400)
+
+    def test_update_user_password_success(self):
+        data = {
+            'current_password': 'password123',
+            'new_password': 'a_brand.new/password1',
+            'confirm_new_password': 'a_brand.new/password1'
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'alert-success')
+        self.assertContains(response, 'Votre mot de passe à été mise à jour.')
+
+    def test_update_user_password_failure(self):
+        """Test a password update but with the wrong current password"""
+        data = {
+            'current_password': '321drowssap',
+            'new_password': 'foo.bar1',
+            'confirm_new_password': 'foo.bar1',
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('current_password', response.context['password_errors'])
+
+    def test_update_user_password_failure2(self):
+        """Test a password update but the new password is the same as the old one."""
+        data = {
+            'current_password': 'password123',
+            'new_password': 'password123',
+            'confirm_new_password': 'password123',
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('new_password', response.context['password_errors'])
+
+    def test_update_user_password_failure3(self):
+        """Test password update but the new password confirmation didn't match."""
+        data = {
+            'current_password': 'password123',
+            'new_password': 'foo_bar1',
+            'confirm_new_password': 'bar_foo1'
+        }
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('confirm_password', response.context['password_errors'])
 
 
 @tag('selenium')

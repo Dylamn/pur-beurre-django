@@ -2,14 +2,14 @@ from typing import Union
 
 from django.core.paginator import Paginator, Page
 from django.db.models import Avg
-from django.http import request as httprequest
+from django.http import HttpRequest
 
 from review.models import Review
 
 
 class ReviewService:
     @staticmethod
-    def get_product_reviews(*, request: httprequest, product_id: int, per_page: int = 6) -> [Page, Union[Review, None]]:
+    def get_product_reviews(*, request: HttpRequest, product_id: int, per_page: int = 6) -> [Page, Union[Review, None]]:
         """Get all reviews of the specified product. Pagination is applied"""
         user_review = None
         page_number = request.GET.get('page', 1)

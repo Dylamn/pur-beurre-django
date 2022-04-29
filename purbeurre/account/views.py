@@ -1,8 +1,10 @@
-from django.shortcuts import render, reverse, redirect
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, reverse, redirect
+from django.views import View
 
 from .forms import RegisterUserForm
+from .services import ProfileService
 
 
 def register(request):
@@ -30,6 +32,16 @@ def register(request):
     return render(request, 'account/register.html', context={"form": form}, status=status)
 
 
-@login_required
-def profile(request):
-    return render(request, 'account/profile.html')
+class ProfileView(LoginRequiredMixin, View):
+    @staticmethod
+    def get(request, *args, **kwargs):
+        return render(request, 'account/profile.html')
+
+    @staticmethod
+    def post(request, *args, **kwargs):
+        if "current_password" in request.POST:
+            ctx, status = ProfileService.update_password(request, *args, **kwargs)
+        else:
+            ctx, status = ProfileService.update_user_information(request, *args, **kwargs)
+
+        return render(request, template_name='account/profile.html', context=ctx, status=status)
